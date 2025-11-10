@@ -38,7 +38,28 @@ export default function Home() {
           <h2 className="text-2xl font-semibold mb-6 text-black">Examples</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ExampleCard
-              title="Career Advisor ✨ NEW"
+              title="Dashboard NEW"
+              description="Tổng quan về kỹ năng, điểm số, tính cách của sinh viên. Xem biểu đồ radar, kỹ năng, danh sách nghề nghiệp hot và roadmap đang theo đuổi."
+              href="/dashboard"
+              icon={
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              }
+            />
+            
+            <ExampleCard
+              title="Career Advisor"
               description="AI-powered career counseling system. Input your profile (GPA, personality, skills) and get personalized career recommendations with detailed roadmaps powered by ClovaX."
               href="/career-advisor"
               icon={
@@ -52,7 +73,7 @@ export default function Home() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
               }
