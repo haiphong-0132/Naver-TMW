@@ -1,275 +1,278 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import roadmapsData from "@/data/career-roadmaps.json";
-
-interface RoadmapPhase {
-  title: string;
-  duration: string;
-  goals: string[];
-  learning_path?: Array<{
-    week: string;
-    topic: string;
-    resources: string[];
-    projects: string[];
-  }>;
-  milestones: string[];
-}
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function RoadmapPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const careerParam = searchParams?.get('career');
-  
-  const [selectedCareer, setSelectedCareer] = useState<any>(null);
-  const [expandedPhase, setExpandedPhase] = useState<string>('phase1');
+  const careerId = searchParams.get('careerId');
+  const studentId = searchParams.get('studentId');
+
+  const [roadmap, setRoadmap] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!careerParam) {
-      router.push('/career-advisor');
+    if (!careerId) {
+      setError('Career ID is required');
+      setLoading(false);
       return;
     }
 
-    const career = roadmapsData.careers.find(
-      c => c.title === careerParam
-    );
+    const fetchRoadmap = async () => {
+      try {
+        const res = await fetch(`/api/roadmaps?careerId=${careerId}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to fetch roadmap');
+        }
+        
+        setRoadmap(data.roadmap);
+        if (data.roadmap?.levels?.[0]) {
+          setExpandedLevels(new Set([data.roadmap.levels[0].levelId]));
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (career) {
-      setSelectedCareer(career);
+    fetchRoadmap();
+  }, [careerId]);
+
+  const toggleLevel = (levelId: string) => {
+    const newExpanded = new Set(expandedLevels);
+    if (newExpanded.has(levelId)) {
+      newExpanded.delete(levelId);
+    } else {
+      newExpanded.add(levelId);
     }
-  }, [careerParam, router]);
+    setExpandedLevels(newExpanded);
+  };
 
-  if (!selectedCareer) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải roadmap...</p>
+        </div>
       </div>
     );
   }
 
-  const roadmap = selectedCareer.roadmap;
-  const phases = Object.entries(roadmap);
+  if (error || !roadmap) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Không tìm thấy roadmap'}</p>
+          <Link
+            href={`/dashboard?id=${studentId || 'STU001'}`}
+            className="text-purple-600 hover:underline"
+          >
+            ← Quay lại Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-          <button
-            onClick={() => router.back()}
-            className="text-indigo-600 hover:text-indigo-800 mb-4 flex items-center gap-2"
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+          <Link
+            href={`/dashboard?id=${studentId || 'STU001'}`}
+            className="text-purple-600 hover:underline mb-4 inline-block"
           >
-            ← Quay lại
-          </button>
-
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                {selectedCareer.title}
-              </h1>
-              <p className="text-gray-600 mb-4">
-                {selectedCareer.description}
-              </p>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                <div className="bg-green-50 p-3 rounded-lg">
-                  <p className="text-xs text-green-700 font-semibold">Mức lương</p>
-                  <p className="text-sm font-bold text-green-900">{selectedCareer.overview.salary_range}</p>
-                </div>
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <p className="text-xs text-blue-700 font-semibold">Tăng trưởng</p>
-                  <p className="text-sm font-bold text-blue-900">{selectedCareer.overview.job_growth}</p>
-                </div>
-                <div className="bg-orange-50 p-3 rounded-lg">
-                  <p className="text-xs text-orange-700 font-semibold">Độ khó</p>
-                  <p className="text-sm font-bold text-orange-900">{selectedCareer.overview.difficulty}</p>
-                </div>
-                <div className="bg-purple-50 p-3 rounded-lg">
-                  <p className="text-xs text-purple-700 font-semibold">Thời gian</p>
-                  <p className="text-sm font-bold text-purple-900">{selectedCareer.overview.time_to_proficiency}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Skills Required */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Kỹ Năng Cần Thiết</h2>
+            ← Quay lại Dashboard
+          </Link>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">
+            {roadmap.title}
+          </h1>
+          <p className="text-gray-600 text-lg">{roadmap.description}</p>
           
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Technical Skills</h3>
-              <ul className="space-y-2">
-                {selectedCareer.required_skills.technical.map((skill: string, idx: number) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-indigo-600 mt-1">✓</span>
-                    <span className="text-gray-700">{skill}</span>
-                  </li>
-                ))}
-              </ul>
+          <div className="mt-6 flex gap-4 text-sm flex-wrap">
+            <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg">
+              <span className="font-semibold">Tổng thời gian:</span> {roadmap.totalDuration || 'N/A'}
             </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Soft Skills</h3>
-              <ul className="space-y-2">
-                {selectedCareer.required_skills.soft_skills.map((skill: string, idx: number) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-indigo-600 mt-1">✓</span>
-                    <span className="text-gray-700">{skill}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
+              <span className="font-semibold">Kỹ năng:</span> {roadmap.totalSkills || 0}
+            </div>
+            <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+              <span className="font-semibold">Khóa học:</span> {roadmap.totalCourses || 0}
             </div>
           </div>
         </div>
 
-        {/* Roadmap Phases */}
         <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Lộ Trình Chi Tiết</h2>
-
-          {phases.map(([phaseKey, phaseData]: [string, any]) => (
-            <div key={phaseKey} className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <button
-                onClick={() => setExpandedPhase(expandedPhase === phaseKey ? '' : phaseKey)}
-                className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <div className="text-left">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {phaseData.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm mt-1">
-                    {phaseData.duration}
-                  </p>
-                </div>
-                <span className="text-2xl text-gray-400">
-                  {expandedPhase === phaseKey ? '▼' : '▶'}
-                </span>
-              </button>
-
-              {expandedPhase === phaseKey && (
-                <div className="p-6 border-t border-gray-200 bg-gray-50">
-                  {/* Goals */}
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-800 mb-3">Mục Tiêu</h4>
-                    <ul className="space-y-2">
-                      {phaseData.goals.map((goal: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-green-600 mt-1">✓</span>
-                          <span className="text-gray-700">{goal}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Learning Path */}
-                  {phaseData.learning_path && (
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-gray-800 mb-3">Chi Tiết Học Tập</h4>
-                      <div className="space-y-4">
-                        {phaseData.learning_path.map((item: any, idx: number) => (
-                          <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                Tuần {item.week}
-                              </span>
-                              <h5 className="font-semibold text-gray-900">{item.topic}</h5>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4 mt-3">
-                              <div>
-                                <p className="text-sm font-semibold text-gray-700 mb-2">Resources:</p>
-                                <ul className="text-sm space-y-1">
-                                  {item.resources.map((resource: string, ridx: number) => (
-                                    <li key={ridx} className="text-gray-600">{resource}</li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              <div>
-                                <p className="text-sm font-semibold text-gray-700 mb-2">Projects:</p>
-                                <ul className="text-sm space-y-1">
-                                  {item.projects.map((project: string, pidx: number) => (
-                                    <li key={pidx} className="text-gray-600">• {project}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+          {roadmap.levels?.map((level: any) => {
+            const isExpanded = expandedLevels.has(level.levelId);
+            
+            return (
+              <div key={level.levelId} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <button
+                  onClick={() => toggleLevel(level.levelId)}
+                  className="w-full p-6 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gradient-to-br from-purple-600 to-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
+                        {level.levelNumber}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">{level.title}</h2>
+                        {level.description && <p className="text-gray-600 mt-1">{level.description}</p>}
                       </div>
                     </div>
-                  )}
-
-                  {/* Milestones */}
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-3">Milestones</h4>
-                    <ul className="space-y-2">
-                      {phaseData.milestones.map((milestone: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-yellow-500 mt-1"></span>
-                          <span className="text-gray-700">{milestone}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex items-center gap-4">
+                      <span className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-semibold">
+                        {level.duration}
+                      </span>
+                      <svg
+                        className={`w-6 h-6 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                </button>
 
-        {/* Companies & Certifications */}
-        <div className="grid md:grid-cols-2 gap-6 mt-6">
-          {selectedCareer.certifications && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Certifications Recommended</h3>
-              <ul className="space-y-2">
-                {selectedCareer.certifications.map((cert: string, idx: number) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-indigo-600"></span>
-                    <span className="text-gray-700">{cert}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+                {isExpanded && (
+                  <div className="px-6 pb-6 border-t border-gray-100">
+                    {level.goals && level.goals.length > 0 && (
+                      <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-blue-900 mb-2">Mục tiêu:</h3>
+                        <ul className="space-y-1">
+                          {level.goals.map((goal: string, idx: number) => (
+                            <li key={idx} className="text-blue-800 flex items-start">
+                              <span className="mr-2">✓</span>
+                              <span>{goal}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-          {selectedCareer.companies_hiring && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Công Ty Đang Tuyển</h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedCareer.companies_hiring.map((company: string, idx: number) => (
-                  <span
-                    key={idx}
-                    className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {company}
-                  </span>
-                ))}
+                    <div className="mt-6 space-y-4">
+                      {level.phases?.map((phase: any) => (
+                        <div key={phase.phaseId} className="border-l-4 border-purple-400 pl-4">
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-lg font-bold text-gray-900">
+                                {phase.phaseNumber}. {phase.title}
+                              </h4>
+                              <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                {phase.duration}
+                              </span>
+                            </div>
+                            {phase.description && (
+                              <p className="text-gray-600 mb-3">{phase.description}</p>
+                            )}
+
+                            {phase.skillsToLearn && phase.skillsToLearn.length > 0 && (
+                              <div className="mt-3">
+                                <h5 className="font-semibold text-gray-900 mb-2">Kỹ năng cần học:</h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  {phase.skillsToLearn.map((skill: any, skillIdx: number) => (
+                                    <div
+                                      key={skillIdx}
+                                      className="bg-white p-3 rounded-lg border border-gray-200"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-900">
+                                          {skill.skillId?.name || 'Skill'}
+                                        </span>
+                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                          Target: {skill.targetProficiency}/10
+                                        </span>
+                                      </div>
+                                      {skill.priority && (
+                                        <span className={`text-xs mt-1 inline-block px-2 py-0.5 rounded ${
+                                          skill.priority === 'essential'
+                                            ? 'bg-red-100 text-red-800'
+                                            : skill.priority === 'recommended'
+                                            ? 'bg-yellow-100 text-yellow-800'
+                                            : 'bg-gray-100 text-gray-800'
+                                        }`}>
+                                          {skill.priority}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {phase.recommendedCourses && phase.recommendedCourses.length > 0 && (
+                              <div className="mt-3">
+                                <h5 className="font-semibold text-gray-900 mb-2">Khóa học đề xuất:</h5>
+                                <div className="space-y-2">
+                                  {phase.recommendedCourses.map((course: any, courseIdx: number) => (
+                                    <div
+                                      key={courseIdx}
+                                      className="bg-white p-3 rounded-lg border border-gray-200"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-900">
+                                          {course.courseId?.title || 'Course'}
+                                        </span>
+                                        {course.isRequired && (
+                                          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                            Bắt buộc
+                                          </span>
+                                        )}
+                                      </div>
+                                      {course.courseId?.description && (
+                                        <p className="text-sm text-gray-600 mt-1">
+                                          {course.courseId.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {phase.milestones && phase.milestones.length > 0 && (
+                              <div className="mt-3">
+                                <h5 className="font-semibold text-gray-900 mb-2">Cột mốc quan trọng:</h5>
+                                <div className="space-y-2">
+                                  {phase.milestones.map((milestone: any, milestoneIdx: number) => (
+                                    <div
+                                      key={milestoneIdx}
+                                      className="bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-lg"
+                                    >
+                                      <div className="font-medium text-gray-900">{milestone.title}</div>
+                                      {milestone.description && (
+                                        <p className="text-sm text-gray-600 mt-1">{milestone.description}</p>
+                                      )}
+                                      {milestone.deliverable && (
+                                        <p className="text-sm text-purple-700 mt-1">
+                                          Deliverable: {milestone.deliverable}
+                                        </p>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* CTA */}
-        <div className="mt-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
-          <h3 className="text-2xl font-bold mb-2">Sẵn Sàng Bắt Đầu?</h3>
-          <p className="mb-6 opacity-90">
-            Hãy lưu lại roadmap này và bắt đầu hành trình của bạn ngay hôm nay!
-          </p>
-          <div className="flex gap-4">
-            <button className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-              Tải Roadmap (PDF)
-            </button>
-            <button
-              onClick={() => router.push('/career-advisor')}
-              className="bg-indigo-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-900 transition-colors"
-            >
-              Thử Lại Với Profile Khác
-            </button>
-          </div>
+            );
+          })}
         </div>
       </div>
     </div>

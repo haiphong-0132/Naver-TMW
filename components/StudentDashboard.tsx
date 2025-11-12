@@ -17,7 +17,7 @@ interface StudentDashboardProps {
     id: string;
     name: string;
     actualCareer: string;
-    gpa: number;
+    cpa: number;
     personality: {
       mbti: string;
       traits: {
@@ -51,13 +51,24 @@ interface StudentDashboardProps {
   currentRoadmap?: {
     title: string;
     description: string;
-    roadmap: {
+    // Old format (hardcoded)
+    roadmap?: {
       beginner?: { title: string; duration: string; goals: string[] };
       intermediate?: { title: string; duration: string; goals: string[] };
       advanced?: { title: string; duration: string; goals: string[] };
       expert?: { title: string; duration: string; goals: string[] };
     };
+    // New format (database)
+    levels?: Array<{
+      levelId: string;
+      levelNumber: number;
+      title: string;
+      description?: string;
+      duration: string;
+      goals: string[];
+    }>;
   };
+  currentCareerId?: string | null;
 }
 
 // biểu đồ kỹ năng 
@@ -193,7 +204,7 @@ function PersonalityRadar({ traits }: { traits: Record<string, number> }) {
   );
 }
 
-export default function StudentDashboard({ student, hotCareers, currentRoadmap }: StudentDashboardProps) {
+export default function StudentDashboard({ student, hotCareers, currentRoadmap, currentCareerId }: StudentDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -213,7 +224,7 @@ export default function StudentDashboard({ student, hotCareers, currentRoadmap }
           </div>
           <div className="text-center">
             <div className="text-sm text-gray-600 mb-1">GPA</div>
-            <div className="text-5xl font-bold text-blue-600">{student.gpa.toFixed(1)}</div>
+            <div className="text-5xl font-bold text-blue-600">{student.cpa}</div>
           </div>
         </div>
       </div>
@@ -293,26 +304,60 @@ export default function StudentDashboard({ student, hotCareers, currentRoadmap }
               <p className="text-gray-600 mb-4">{currentRoadmap.description}</p>
               
               <div className="space-y-4">
-                {Object.entries(currentRoadmap.roadmap).map(([level, phase]: [string, any]) => (
-                  <div key={level} className="border-l-4 border-blue-500 pl-4 py-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-semibold text-gray-900 capitalize">
-                        {phase.title}
-                      </h5>
-                      <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                        {phase.duration}
-                      </span>
+                {/* Handle new database format with levels array */}
+                {currentRoadmap.levels && Array.isArray(currentRoadmap.levels) ? (
+                  currentRoadmap.levels.slice(0, 3).map((level: any) => (
+                    <div key={level.levelId || level.levelNumber} className="border-l-4 border-blue-500 pl-4 py-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-semibold text-gray-900 capitalize">
+                          {level.title}
+                        </h5>
+                        <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                          {level.duration}
+                        </span>
+                      </div>
+                      <ul className="space-y-1">
+                        {level.goals?.slice(0, 3).map((goal: string, idx: number) => (
+                          <li key={idx} className="text-sm text-gray-700 flex items-start">
+                            <span className="mr-2">•</span>
+                            <span>{goal}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="space-y-1">
-                      {phase.goals.slice(0, 3).map((goal: string, idx: number) => (
-                        <li key={idx} className="text-sm text-gray-700 flex items-start">
-                          <span className="mr-2">•</span>
-                          <span>{goal}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                  ))
+                ) : currentRoadmap.roadmap && typeof currentRoadmap.roadmap === 'object' ? (
+                  /* Handle old hardcoded format with beginner/intermediate/advanced */
+                  Object.entries(currentRoadmap.roadmap).map(([level, phase]: [string, any]) => (
+                    <div key={level} className="border-l-4 border-blue-500 pl-4 py-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-semibold text-gray-900 capitalize">
+                          {phase.title}
+                        </h5>
+                        <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                          {phase.duration}
+                        </span>
+                      </div>
+                      <ul className="space-y-1">
+                        {phase.goals?.slice(0, 3).map((goal: string, idx: number) => (
+                          <li key={idx} className="text-sm text-gray-700 flex items-start">
+                            <span className="mr-2">•</span>
+                            <span>{goal}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))
+                ) : null}
+              </div>
+              
+              <div className="mt-6">
+                <a
+                  href={`/career-advisor/roadmap?careerId=${currentCareerId || ''}&studentId=${student.id}`}
+                  className="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg font-semibold"
+                >
+                  Xem Roadmap Chi Tiết →
+                </a>
               </div>
             </div>
           ) : (
