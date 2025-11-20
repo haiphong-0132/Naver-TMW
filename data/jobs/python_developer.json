@@ -1,0 +1,433 @@
+{
+  "career_id": "python_developer",
+  "career_name": "Python Developer",
+  "description": "Lộ trình trở thành Python Developer cho sinh viên.",
+  "stages": [
+    {
+      "id": "stage_1_python_foundation",
+      "name": "Giai đoạn 1 - Nền tảng Python & lập trình",
+      "description": "Học tư duy lập trình, cú pháp Python cơ bản và công cụ làm việc.",
+      "order_index": 1,
+      "recommended_semesters": [1, 2],
+      "areas": [
+        {
+          "id": "prog_fundamentals_py",
+          "name": "Tư duy lập trình & OOP cơ bản",
+          "description": "Nắm nền tảng lập trình để sử dụng Python hiệu quả.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "prog_fundamentals_general",
+              "name": "Tư duy lập trình cơ bản",
+              "item_type": "skill",
+              "description": "Biến, kiểu dữ liệu, toán tử, cấu trúc rẽ nhánh, vòng lặp, hàm, debug cơ bản.",
+              "skill_tags": ["Programming Fundamentals"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 35,
+              "order_index": 1
+            },
+            {
+              "id": "oop_intro_python",
+              "name": "OOP nhập môn",
+              "item_type": "concept",
+              "description": "Khái niệm class, object, thuộc tính, phương thức, kế thừa, đóng gói.",
+              "skill_tags": ["OOP Basics"],
+              "prerequisites": ["prog_fundamentals_general"],
+              "required_skills": [
+                { "tag": "Programming Fundamentals", "min_level": 2 }
+              ],
+              "estimated_hours": 20,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "python_core_language",
+          "name": "Python core",
+          "description": "Cú pháp và cấu trúc dữ liệu cơ bản trong Python.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "python_syntax_basics",
+              "name": "Python cơ bản",
+              "item_type": "skill",
+              "description": "Cú pháp, kiểu dữ liệu built-in, list, tuple, dict, set, function, module.",
+              "skill_tags": ["Python"],
+              "prerequisites": ["prog_fundamentals_general"],
+              "required_skills": [
+                { "tag": "Programming Fundamentals", "min_level": 2 }
+              ],
+              "estimated_hours": 35,
+              "order_index": 1
+            },
+            {
+              "id": "python_collections_controlflow",
+              "name": "Cấu trúc dữ liệu & control flow",
+              "item_type": "skill",
+              "description": "List/dict comprehension, vòng lặp nâng cao, unpacking, lambda.",
+              "skill_tags": ["Python"],
+              "prerequisites": ["python_syntax_basics"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 2
+            },
+            {
+              "id": "python_oop_basics",
+              "name": "OOP với Python",
+              "item_type": "skill",
+              "description": "Định nghĩa class, __init__, self, kế thừa đơn giản, override method.",
+              "skill_tags": ["Python", "OOP Basics"],
+              "prerequisites": ["oop_intro_python", "python_syntax_basics"],
+              "required_skills": [
+                { "tag": "OOP Basics", "min_level": 1 },
+                { "tag": "Python", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "id": "python_tooling_basics",
+          "name": "Công cụ & môi trường Python",
+          "description": "Chuẩn bị môi trường làm việc thực tế.",
+          "order_index": 3,
+          "items": [
+            {
+              "id": "git_basics_python",
+              "name": "Git cơ bản",
+              "item_type": "skill",
+              "description": "Khởi tạo repo, commit, branch, merge, push/pull với GitHub/GitLab.",
+              "skill_tags": ["Git"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 15,
+              "order_index": 1
+            },
+            {
+              "id": "venv_and_dependencies",
+              "name": "Virtualenv & quản lý gói",
+              "item_type": "skill",
+              "description": "Tạo virtualenv, dùng pip, requirements.txt, quản lý phiên bản package.",
+              "skill_tags": ["Python Environment"],
+              "prerequisites": ["python_syntax_basics"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 2 }
+              ],
+              "estimated_hours": 15,
+              "order_index": 2
+            },
+            {
+              "id": "debugging_ide_setup",
+              "name": "IDEs & debug cơ bản",
+              "item_type": "skill",
+              "description": "Làm quen với VS Code/PyCharm, breakpoint, xem biến, chạy test đơn giản.",
+              "skill_tags": ["Dev Tooling"],
+              "prerequisites": ["python_syntax_basics"],
+              "required_skills": [],
+              "estimated_hours": 15,
+              "order_index": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_2_python_advanced",
+      "name": "Giai đoạn 2 - Python nâng cao & ecosystem",
+      "description": "Hiểu sâu Python, sử dụng thư viện chuẩn và viết code sạch hơn.",
+      "order_index": 2,
+      "recommended_semesters": [3, 4],
+      "areas": [
+        {
+          "id": "python_advanced_language",
+          "name": "Ngôn ngữ Python nâng cao",
+          "description": "Các khái niệm giúp code Python hiện đại, dễ bảo trì.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "python_advanced_features",
+              "name": "Feature nâng cao trong Python",
+              "item_type": "skill",
+              "description": "Args/kwargs, decorator cơ bản, context manager, generator, iterator.",
+              "skill_tags": ["Python Advanced"],
+              "prerequisites": ["python_collections_controlflow"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 3 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 1
+            },
+            {
+              "id": "python_error_handling",
+              "name": "Xử lý lỗi & logging",
+              "item_type": "skill",
+              "description": "Exception, try/except, raise, logging cơ bản, tạo error class riêng.",
+              "skill_tags": ["Python Advanced"],
+              "prerequisites": ["python_syntax_basics"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 2 }
+              ],
+              "estimated_hours": 20,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "python_standard_library_quality",
+          "name": "Standard library & chất lượng mã",
+          "description": "Tận dụng standard library và viết code có test.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "python_stdlib_core",
+              "name": "Thư viện chuẩn quan trọng",
+              "item_type": "skill",
+              "description": "os, pathlib, datetime, json, collections, itertools, functools.",
+              "skill_tags": ["Python Standard Library"],
+              "prerequisites": ["python_syntax_basics"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 1
+            },
+            {
+              "id": "python_testing_pytest",
+              "name": "Testing với pytest/unittest",
+              "item_type": "skill",
+              "description": "Viết unit test đơn giản, assert, fixture, chạy test tự động.",
+              "skill_tags": ["Testing"],
+              "prerequisites": ["python_stdlib_core"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 3 }
+              ],
+              "estimated_hours": 20,
+              "order_index": 2
+            },
+            {
+              "id": "python_code_style",
+              "name": "Code style & linting",
+              "item_type": "skill",
+              "description": "PEP8, dùng black/flake8/pylint để giữ code sạch và đồng nhất.",
+              "skill_tags": ["Code Quality"],
+              "prerequisites": ["python_testing_pytest"],
+              "required_skills": [],
+              "estimated_hours": 15,
+              "order_index": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_3_python_applications",
+      "name": "Giai đoạn 3 - Ứng dụng Python",
+      "description": "Dùng Python để làm web, xử lý dữ liệu và automation.",
+      "order_index": 3,
+      "recommended_semesters": [5, 6],
+      "areas": [
+        {
+          "id": "python_web_development",
+          "name": "Web backend với Python",
+          "description": "Xây REST API đơn giản bằng Flask/Django/FastAPI.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "http_basics_for_python",
+              "name": "HTTP & REST cho backend Python",
+              "item_type": "concept",
+              "description": "Request/response, method, status code, JSON API, routing cơ bản.",
+              "skill_tags": ["HTTP Basics", "REST API"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 20,
+              "order_index": 1
+            },
+            {
+              "id": "python_web_framework_basics",
+              "name": "Làm quen framework web (Flask/Django/FastAPI)",
+              "item_type": "skill",
+              "description": "Tạo route, xử lý request, trả JSON, template cơ bản (nếu có).",
+              "skill_tags": ["Python Web"],
+              "prerequisites": ["http_basics_for_python", "python_advanced_features"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 3 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 2
+            },
+            {
+              "id": "python_rest_api_crud",
+              "name": "Xây REST API CRUD đơn giản",
+              "item_type": "project",
+              "description": "Xây API quản lý thực thể (user, task, note) có CRUD, validation đơn giản.",
+              "skill_tags": ["Python Web", "REST API"],
+              "prerequisites": ["python_web_framework_basics"],
+              "required_skills": [
+                { "tag": "Python Web", "min_level": 1 }
+              ],
+              "estimated_hours": 35,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "id": "python_data_processing",
+          "name": "Xử lý dữ liệu với Python",
+          "description": "Dùng Python để đọc, xử lý và trực quan hoá dữ liệu.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "numpy_pandas_intro",
+              "name": "NumPy & Pandas cơ bản",
+              "item_type": "skill",
+              "description": "Mảng NumPy, DataFrame, lọc, groupby, merge, xử lý missing values.",
+              "skill_tags": ["NumPy", "Pandas"],
+              "prerequisites": ["python_syntax_basics"],
+              "required_skills": [
+                { "tag": "Python", "min_level": 3 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 1
+            },
+            {
+              "id": "data_viz_matplotlib",
+              "name": "Trực quan hoá dữ liệu",
+              "item_type": "skill",
+              "description": "Vẽ line chart, bar chart, histogram với matplotlib hoặc seaborn.",
+              "skill_tags": ["Data Visualization"],
+              "prerequisites": ["numpy_pandas_intro"],
+              "required_skills": [
+                { "tag": "Pandas", "min_level": 2 }
+              ],
+              "estimated_hours": 20,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "python_automation_scripting",
+          "name": "Tự động hoá & scripting",
+          "description": "Viết script tự động hoá công việc lặp lại.",
+          "order_index": 3,
+          "items": [
+            {
+              "id": "python_cli_tools",
+              "name": "Viết script & CLI tool",
+              "item_type": "project",
+              "description": "Viết script xử lý file, rename, crawl đơn giản; dùng argparse/click để làm CLI.",
+              "skill_tags": ["Automation", "Python"],
+              "prerequisites": ["python_stdlib_core"],
+              "required_skills": [
+                { "tag": "Python Standard Library", "min_level": 2 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 1
+            },
+            {
+              "id": "task_scheduling_basic",
+              "name": "Chạy script theo lịch",
+              "item_type": "concept",
+              "description": "Cron job (Linux) hoặc Task Scheduler (Windows), chạy script định kỳ.",
+              "skill_tags": ["Automation"],
+              "prerequisites": ["python_cli_tools"],
+              "required_skills": [],
+              "estimated_hours": 10,
+              "order_index": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_4_python_career",
+      "name": "Giai đoạn 4 - Chuyên sâu & đi làm",
+      "description": "Chọn nhánh chính (web/data/automation) và hoàn thiện portfolio.",
+      "order_index": 4,
+      "recommended_semesters": [7, 8],
+      "areas": [
+        {
+          "id": "python_specialization_paths",
+          "name": "Nhánh chuyên sâu Python",
+          "description": "Tập trung vào 1–2 nhánh chính để xin việc.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "specialize_python_backend",
+              "name": "Chuyên Python backend",
+              "item_type": "concept",
+              "description": "API chuẩn REST, auth, pagination, deploy backend Python.",
+              "skill_tags": ["Python Web Advanced"],
+              "prerequisites": ["python_rest_api_crud"],
+              "required_skills": [
+                { "tag": "Python Web", "min_level": 2 }
+              ],
+              "estimated_hours": 40,
+              "order_index": 1
+            },
+            {
+              "id": "specialize_python_data",
+              "name": "Chuyên Python cho dữ liệu",
+              "item_type": "concept",
+              "description": "Pipeline ETL nhỏ, làm việc với dataset lớn hơn, kết hợp SQL + Pandas.",
+              "skill_tags": ["Data Engineering Basics"],
+              "prerequisites": ["numpy_pandas_intro"],
+              "required_skills": [
+                { "tag": "Pandas", "min_level": 2 }
+              ],
+              "estimated_hours": 40,
+              "order_index": 2
+            },
+            {
+              "id": "specialize_python_automation",
+              "name": "Chuyên automation & tooling",
+              "item_type": "concept",
+              "description": "Viết tool nội bộ, script hoá workflow, tích hợp API bên thứ ba.",
+              "skill_tags": ["Automation Advanced"],
+              "prerequisites": ["python_cli_tools"],
+              "required_skills": [
+                { "tag": "Automation", "min_level": 2 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "id": "python_career_prep",
+          "name": "Portfolio & phỏng vấn Python",
+          "description": "Tổng hợp project và luyện phỏng vấn.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "python_portfolio_projects",
+              "name": "Hoàn thiện portfolio Python",
+              "item_type": "project",
+              "description": "Tổng hợp 3–4 project (web, data, automation) với README rõ ràng và demo nếu có.",
+              "skill_tags": ["Career Portfolio"],
+              "prerequisites": ["python_rest_api_crud", "python_cli_tools"],
+              "required_skills": [],
+              "estimated_hours": 25,
+              "order_index": 1
+            },
+            {
+              "id": "python_interview_prep",
+              "name": "Luyện phỏng vấn Python Developer",
+              "item_type": "skill",
+              "description": "Ôn syntax, cấu trúc dữ liệu, async/concurrency cơ bản, giải thích project đã làm.",
+              "skill_tags": ["Python Interview"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 20,
+              "order_index": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

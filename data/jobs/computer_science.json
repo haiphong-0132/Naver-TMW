@@ -1,0 +1,440 @@
+{
+  "career_id": "computer_science",
+  "career_name": "Computer Science",
+  "description": "Lộ trình Computer Science nền tảng cho sinh viên (gần với chương trình CS chuẩn).",
+  "stages": [
+    {
+      "id": "stage_1_cs_foundation",
+      "name": "Giai đoạn 1 - Nền tảng lập trình & toán",
+      "description": "Lập trình cơ bản, toán rời rạc và toán nền tảng cho CS.",
+      "order_index": 1,
+      "recommended_semesters": [1, 2],
+      "areas": [
+        {
+          "id": "cs_programming_basics",
+          "name": "Lập trình cơ bản",
+          "description": "Nắm rõ 1 ngôn ngữ lập trình chính và tư duy giải quyết vấn đề.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "cs_prog_fundamentals",
+              "name": "Tư duy lập trình & cấu trúc cơ bản",
+              "item_type": "skill",
+              "description": "Biến, kiểu dữ liệu, hàm, cấu trúc rẽ nhánh, vòng lặp, debug, đọc/ghi file.",
+              "skill_tags": ["Programming Fundamentals"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 40,
+              "order_index": 1
+            },
+            {
+              "id": "cs_oop_intro",
+              "name": "Lập trình hướng đối tượng nhập môn",
+              "item_type": "concept",
+              "description": "Class, object, kế thừa, đa hình, đóng gói, abstraction.",
+              "skill_tags": ["OOP Basics"],
+              "prerequisites": ["cs_prog_fundamentals"],
+              "required_skills": [
+                { "tag": "Programming Fundamentals", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "cs_math_foundations",
+          "name": "Toán nền tảng cho CS",
+          "description": "Toán rời rạc và các mảng toán hỗ trợ tư duy thuật toán.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "discrete_math_basics",
+              "name": "Toán rời rạc cơ bản",
+              "item_type": "concept",
+              "description": "Tập hợp, quan hệ, hàm, logic mệnh đề, chứng minh cơ bản (quy nạp, phản chứng).",
+              "skill_tags": ["Discrete Math"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 40,
+              "order_index": 1
+            },
+            {
+              "id": "cs_calculus_overview",
+              "name": "Giải tích cho CS (tổng quan)",
+              "item_type": "concept",
+              "description": "Hàm số, giới hạn, đạo hàm, tích phân mức độ phục vụ cho tối ưu & phân tích.",
+              "skill_tags": ["Calculus"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 30,
+              "order_index": 2
+            },
+            {
+              "id": "cs_probability_overview",
+              "name": "Xác suất & thống kê cơ bản",
+              "item_type": "concept",
+              "description": "Biến ngẫu nhiên, phân phối, kỳ vọng, thống kê mô tả.",
+              "skill_tags": ["Probability & Statistics"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 30,
+              "order_index": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_2_core_cs",
+      "name": "Giai đoạn 2 - Core Computer Science",
+      "description": "Cấu trúc dữ liệu, giải thuật, Hệ điều hành, Mạng máy tính, CSDL.",
+      "order_index": 2,
+      "recommended_semesters": [3, 4],
+      "areas": [
+        {
+          "id": "cs_data_structures_algorithms",
+          "name": "Cấu trúc dữ liệu & giải thuật",
+          "description": "Trọng tâm của CS: cách lưu trữ và xử lý dữ liệu hiệu quả.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "ds_array_list_stack_queue",
+              "name": "Mảng, danh sách, stack, queue",
+              "item_type": "skill",
+              "description": "Cài đặt và độ phức tạp thời gian/không gian của các cấu trúc cơ bản.",
+              "skill_tags": ["Data Structures"],
+              "prerequisites": ["cs_prog_fundamentals"],
+              "required_skills": [
+                { "tag": "Programming Fundamentals", "min_level": 3 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 1
+            },
+            {
+              "id": "ds_tree_graph_basics",
+              "name": "Cây & đồ thị cơ bản",
+              "item_type": "concept",
+              "description": "Cây nhị phân, cây tìm kiếm nhị phân, biểu diễn đồ thị, duyệt DFS/BFS.",
+              "skill_tags": ["Data Structures", "Graph Basics"],
+              "prerequisites": ["ds_array_list_stack_queue", "discrete_math_basics"],
+              "required_skills": [
+                { "tag": "Discrete Math", "min_level": 1 }
+              ],
+              "estimated_hours": 35,
+              "order_index": 2
+            },
+            {
+              "id": "algo_analysis_intro",
+              "name": "Phân tích độ phức tạp thuật toán",
+              "item_type": "concept",
+              "description": "Big-O, Big-Theta, Big-Omega, phân tích các thuật toán đơn giản.",
+              "skill_tags": ["Algorithms"],
+              "prerequisites": ["discrete_math_basics"],
+              "required_skills": [
+                { "tag": "Discrete Math", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "id": "cs_systems_core",
+          "name": "Hệ thống máy tính & Hệ điều hành",
+          "description": "Cách máy tính thực sự chạy code.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "computer_architecture_basics",
+              "name": "Kiến trúc máy tính cơ bản",
+              "item_type": "concept",
+              "description": "CPU, bộ nhớ, I/O, lệnh máy, pipeline, cache ở mức khái niệm.",
+              "skill_tags": ["Computer Architecture"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 30,
+              "order_index": 1
+            },
+            {
+              "id": "operating_systems_basics",
+              "name": "Hệ điều hành cơ bản",
+              "item_type": "concept",
+              "description": "Process, thread, scheduler, bộ nhớ, file system, system call.",
+              "skill_tags": ["Operating Systems"],
+              "prerequisites": ["computer_architecture_basics"],
+              "required_skills": [
+                { "tag": "Computer Architecture", "min_level": 1 }
+              ],
+              "estimated_hours": 35,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "cs_networks_databases",
+          "name": "Mạng máy tính & Cơ sở dữ liệu",
+          "description": "Giao tiếp qua mạng và lưu trữ dữ liệu lâu dài.",
+          "order_index": 3,
+          "items": [
+            {
+              "id": "computer_networks_basics",
+              "name": "Mạng máy tính cơ bản",
+              "item_type": "concept",
+              "description": "Mô hình OSI/TCP-IP, IP, TCP/UDP, routing, DNS, HTTP cơ bản.",
+              "skill_tags": ["Computer Networks"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 35,
+              "order_index": 1
+            },
+            {
+              "id": "database_systems_basics",
+              "name": "Hệ quản trị cơ sở dữ liệu & SQL",
+              "item_type": "skill",
+              "description": "Mô hình quan hệ, SQL cơ bản (SELECT, JOIN), ACID, index.",
+              "skill_tags": ["Databases", "SQL"],
+              "prerequisites": [],
+              "required_skills": [],
+              "estimated_hours": 35,
+              "order_index": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_3_advanced_cs",
+      "name": "Giai đoạn 3 - CS nâng cao",
+      "description": "Thuật toán nâng cao, hệ phân tán, song song, kỹ nghệ phần mềm.",
+      "order_index": 3,
+      "recommended_semesters": [5, 6],
+      "areas": [
+        {
+          "id": "cs_algorithms_advanced",
+          "name": "Giải thuật nâng cao",
+          "description": "Các kỹ thuật giải thuật phổ biến trong phỏng vấn & thực tế.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "algo_greedy_dp_graph",
+              "name": "Greedy, DP, thuật toán trên đồ thị",
+              "item_type": "skill",
+              "description": "Kỹ thuật tham lam, quy hoạch động, shortest path, MST ở mức khái niệm & cài đặt.",
+              "skill_tags": ["Algorithms"],
+              "prerequisites": ["ds_tree_graph_basics", "algo_analysis_intro"],
+              "required_skills": [
+                { "tag": "Graph Basics", "min_level": 1 },
+                { "tag": "Algorithms", "min_level": 2 }
+              ],
+              "estimated_hours": 40,
+              "order_index": 1
+            },
+            {
+              "id": "complexity_theory_basics",
+              "name": "Độ phức tạp tính toán cơ bản",
+              "item_type": "concept",
+              "description": "Lớp P, NP, NP-complete ở mức trực giác; vấn đề khó & xấp xỉ.",
+              "skill_tags": ["Theoretical CS"],
+              "prerequisites": ["algo_analysis_intro", "discrete_math_basics"],
+              "required_skills": [
+                { "tag": "Discrete Math", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "cs_systems_advanced",
+          "name": "Hệ điều hành nâng cao & hệ phân tán",
+          "description": "Cạnh tranh, giao tiếp tiến trình, hệ phân tán.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "concurrency_synchronization",
+              "name": "Lập trình đồng thời & đồng bộ",
+              "item_type": "concept",
+              "description": "Thread, race condition, mutex, semaphore, deadlock, mô hình producer-consumer.",
+              "skill_tags": ["Concurrency"],
+              "prerequisites": ["operating_systems_basics"],
+              "required_skills": [
+                { "tag": "Operating Systems", "min_level": 2 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 1
+            },
+            {
+              "id": "distributed_systems_intro",
+              "name": "Hệ phân tán nhập môn",
+              "item_type": "concept",
+              "description": "Client-server, replication, consistency vs availability, basic fault tolerance.",
+              "skill_tags": ["Distributed Systems"],
+              "prerequisites": ["computer_networks_basics"],
+              "required_skills": [
+                { "tag": "Computer Networks", "min_level": 2 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 2
+            }
+          ]
+        },
+        {
+          "id": "cs_software_engineering",
+          "name": "Kỹ nghệ phần mềm",
+          "description": "Thiết kế, mẫu thiết kế, testing trong phát triển phần mềm.",
+          "order_index": 3,
+          "items": [
+            {
+              "id": "software_design_principles",
+              "name": "Nguyên lý thiết kế phần mềm",
+              "item_type": "concept",
+              "description": "SOLID, separation of concerns, modularity, layering.",
+              "skill_tags": ["Software Engineering"],
+              "prerequisites": ["cs_oop_intro"],
+              "required_skills": [
+                { "tag": "OOP Basics", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 1
+            },
+            {
+              "id": "design_patterns_intro",
+              "name": "Mẫu thiết kế căn bản",
+              "item_type": "concept",
+              "description": "Singleton, Factory, Strategy, Observer ở mức khái niệm & ví dụ.",
+              "skill_tags": ["Design Patterns"],
+              "prerequisites": ["software_design_principles"],
+              "required_skills": [],
+              "estimated_hours": 25,
+              "order_index": 2
+            },
+            {
+              "id": "testing_practices_cs",
+              "name": "Thực hành testing",
+              "item_type": "skill",
+              "description": "Unit test, integration test, test automation cơ bản.",
+              "skill_tags": ["Testing"],
+              "prerequisites": ["cs_prog_fundamentals"],
+              "required_skills": [
+                { "tag": "Programming Fundamentals", "min_level": 3 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_4_cs_career",
+      "name": "Giai đoạn 4 - Nhánh chuyên sâu & sự nghiệp",
+      "description": "Chọn nhánh chuyên sâu và chuẩn bị cho việc làm hoặc nghiên cứu.",
+      "order_index": 4,
+      "recommended_semesters": [7, 8],
+      "areas": [
+        {
+          "id": "cs_specialization_tracks",
+          "name": "Nhánh chuyên sâu CS",
+          "description": "Một vài hướng đi phổ biến từ nền tảng CS.",
+          "order_index": 1,
+          "items": [
+            {
+              "id": "cs_ai_ml_track_intro",
+              "name": "Nhánh AI/ML (tổng quan)",
+              "item_type": "concept",
+              "description": "Machine learning, deep learning, ứng dụng dữ liệu.",
+              "skill_tags": ["AI & ML Overview"],
+              "prerequisites": ["cs_probability_overview", "cs_calculus_overview"],
+              "required_skills": [
+                { "tag": "Probability & Statistics", "min_level": 2 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 1
+            },
+            {
+              "id": "cs_systems_track_intro",
+              "name": "Nhánh Systems & Infrastructure",
+              "item_type": "concept",
+              "description": "Hệ điều hành nâng cao, hệ phân tán, devops cơ bản.",
+              "skill_tags": ["Systems Overview"],
+              "prerequisites": ["concurrency_synchronization", "distributed_systems_intro"],
+              "required_skills": [
+                { "tag": "Concurrency", "min_level": 1 }
+              ],
+              "estimated_hours": 25,
+              "order_index": 2
+            },
+            {
+              "id": "cs_security_track_intro",
+              "name": "Nhánh An toàn thông tin",
+              "item_type": "concept",
+              "description": "Cơ bản về bảo mật hệ thống, mạng, web, mật mã học.",
+              "skill_tags": ["Security Overview"],
+              "prerequisites": ["computer_networks_basics", "operating_systems_basics"],
+              "required_skills": [],
+              "estimated_hours": 25,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "id": "cs_capstone_area",
+          "name": "Đồ án tốt nghiệp / capstone",
+          "description": "Áp dụng kiến thức CS vào một dự án lớn.",
+          "order_index": 2,
+          "items": [
+            {
+              "id": "cs_capstone_project",
+              "name": "Capstone project CS",
+              "item_type": "project",
+              "description": "Thiết kế, triển khai và báo cáo một hệ thống hoặc ứng dụng có độ phức tạp vừa phải.",
+              "skill_tags": ["CS Capstone", "Project"],
+              "prerequisites": ["software_design_principles", "cs_data_structures_algorithms"],
+              "required_skills": [
+                { "tag": "Software Engineering", "min_level": 2 },
+                { "tag": "Algorithms", "min_level": 2 }
+              ],
+              "estimated_hours": 80,
+              "order_index": 1
+            }
+          ]
+        },
+        {
+          "id": "cs_career_preparation",
+          "name": "Chuẩn bị phỏng vấn & nghề nghiệp CS",
+          "description": "Luyện phỏng vấn thuật toán, system design và chuẩn bị hồ sơ.",
+          "order_index": 3,
+          "items": [
+            {
+              "id": "cs_interview_prep_ds_algo",
+              "name": "Phỏng vấn cấu trúc dữ liệu & giải thuật",
+              "item_type": "skill",
+              "description": "Luyện bài tập code, giải thích độ phức tạp, trình bày cách tiếp cận.",
+              "skill_tags": ["Algorithms Interview"],
+              "prerequisites": ["algo_greedy_dp_graph"],
+              "required_skills": [
+                { "tag": "Algorithms", "min_level": 3 }
+              ],
+              "estimated_hours": 40,
+              "order_index": 1
+            },
+            {
+              "id": "cs_interview_prep_system_design",
+              "name": "System design cơ bản cho phỏng vấn",
+              "item_type": "concept",
+              "description": "Thiết kế hệ thống đơn giản: scale-out, cache, database sharding ở mức khái niệm.",
+              "skill_tags": ["System Design"],
+              "prerequisites": ["distributed_systems_intro"],
+              "required_skills": [
+                { "tag": "Distributed Systems", "min_level": 1 }
+              ],
+              "estimated_hours": 30,
+              "order_index": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
