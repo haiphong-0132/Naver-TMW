@@ -252,6 +252,5 @@ const StudentSchema = new Schema<IStudent>(
   }
 );
 
-
 export const Student: Model<IStudent> =
   mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);

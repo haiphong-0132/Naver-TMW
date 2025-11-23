@@ -17,32 +17,43 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password required');
         }
 
-        await connectDB();
+        try {
+          await connectDB();
 
-        const user = await User.findOne({ email: credentials.email })
-          .populate('studentId')
-          .lean();
+          const user = await User.findOne({ email: credentials.email })
+            .populate('studentId')
+            .lean();
 
-        if (!user) {
-          throw new Error('Invalid email or password');
+          console.log('Auth - User found:', user?.email);
+          console.log('Auth - User studentId:', user?.studentId);
+
+          if (!user) {
+            throw new Error('Invalid email or password');
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.passwordHash
+          );
+
+          if (!isPasswordValid) {
+            throw new Error('Invalid email or password');
+          }
+
+          const studentId = user.studentId?._id?.toString() || user.studentId?.toString() || null;
+          console.log('Auth - Returning studentId:', studentId);
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            studentId: studentId,
+            studentCode: "B22DCCN918",
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
+          throw error;
         }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.passwordHash
-        );
-
-        if (!isPasswordValid) {
-          throw new Error('Invalid email or password');
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          studentId: user.studentId?._id?.toString() || null,
-          studentCode: "B22DCCN918",
-        };
       },
     }),
   ],

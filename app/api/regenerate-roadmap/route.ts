@@ -215,63 +215,12 @@ export async function POST(request: NextRequest) {
     student.career.targetConfidence = 0.85;
     student.aiCareerRecommendation = careerRecommendation;
 
-    // Step 3: Sync user to clova-rag-roadmap via sync-user API
-    console.log('Step 3: Syncing user to clova-rag-roadmap...');
-    const clovaUserData = {
-      user_id: student.studentCode,
-      full_name: student.fullName,
-      current_semester: student.academic.currentSemester,
-      gpa: student.academic.gpa,
-      target_career_id: student.career.targetCareerID,
-      actual_career: student.career.actualCareer,
-      time_per_week_hours: student.availability.timePerWeekHours,
-      it_skills: student.itSkill,
-      soft_skills: student.softSkill,
-      skills: {
-        technical: student.skills.technical instanceof Map 
-          ? Object.fromEntries(student.skills.technical) 
-          : (student.skills.technical || {}),
-        general: student.skills.general instanceof Map 
-          ? Object.fromEntries(student.skills.general) 
-          : (student.skills.general || {}),
-      },
-      interests: student.interests,
-      projects: student.projects,
-      academic: {
-        current_semester: student.academic.currentSemester,
-        gpa: student.academic.gpa,
-        courses: student.academic.courses.map((c) => ({
-          code: c.code,
-          name: c.name,
-          grade: c.grade,
-        })),
-      },
-      career: {
-        target_career_id: student.career.targetCareerID,
-        actual_career: student.career.actualCareer,
-        target_confidence: student.career.targetConfidence,
-      },
-      availability: {
-        time_per_week_hours: student.availability.timePerWeekHours,
-      },
-    };
+    // Save student with updated career info
+    await student.save();
+    console.log('✅ Student career updated in database');
 
-    const syncResponse = await fetch(`http://localhost:3000/api/sync-user`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(clovaUserData),
-    });
-
-    if (!syncResponse.ok) {
-      const errorData = await syncResponse.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(`User sync failed: ${errorData.error || syncResponse.statusText}`);
-    }
-    
-    console.log('✅ User synced to users.json');
-    // Wait for file system to update
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Step 4: Call Python API to generate personalized roadmap
+    // Step 3: Call Python API to generate personalized roadmap
+    // Note: Python API will read student data directly from MongoDB
     console.log('Step 4: Generating personalized roadmap...');
     const roadmapRes = await fetch(`${PYTHON_API_URL}/roadmap/personalized`, {
       method: 'POST',
@@ -289,8 +238,8 @@ export async function POST(request: NextRequest) {
     const roadmapData = await roadmapRes.json();
     console.log(`✅ Generated roadmap with ${roadmapData.stages?.length || 0} stages`);
 
-    // Step 5: Save PersonalizedRoadmap to MongoDB
-    console.log('Step 5: Saving personalized roadmap to database...');
+    // Step 4: Save PersonalizedRoadmap to MongoDB
+    console.log('Step 4: Saving personalized roadmap to database...');
     
     // Delete old roadmap if exists
     await PersonalizedRoadmap.deleteMany({ studentId: student._id });
@@ -341,9 +290,6 @@ export async function POST(request: NextRequest) {
     
     await personalizedRoadmap.save();
     console.log('✅ Personalized roadmap saved with', personalizedRoadmap.stages.length, 'stages');
-
-    // Save student
-    await student.save();
 
     return NextResponse.json({
       success: true,

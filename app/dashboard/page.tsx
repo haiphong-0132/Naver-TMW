@@ -12,7 +12,10 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const { studentId } = session.user;
+  const { studentId } = session.user as any;
+
+  console.log('Dashboard - Session user:', session.user);
+  console.log('Dashboard - Student ID:', studentId);
 
   if (!studentId) {
     return (
@@ -39,12 +42,20 @@ export default async function DashboardPage() {
   let currentRoadmap: any = null;
   let currentCareerId: string | null = null;
 
+  // Get base URL for API calls (works both locally and on Vercel)
+  const baseUrl = process.env.NEXTAUTH_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
   try {
     const studentRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/students/${studentId}`,
+      `${baseUrl}/api/students/${studentId}`,
       { cache: 'no-store' }
     );
+    
+    console.log('Dashboard - Student API status:', studentRes.status);
+    
     const studentData = await studentRes.json();
+    console.log('Dashboard - Student data received:', !!studentData.student);
 
     if (studentData.student) {
       dbStudent = studentData.student;
@@ -118,7 +129,7 @@ export default async function DashboardPage() {
 
     // Fetch careers
     const careersRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/careers`,
+      `${baseUrl}/api/careers`,
       { cache: 'no-store' }
     );
     const careersData = await careersRes.json();
@@ -136,7 +147,7 @@ export default async function DashboardPage() {
     if (dbStudent) {
       try {
         const personalizedRoadmapRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/personalized-roadmap?studentId=${dbStudent._id}`,
+          `${baseUrl}/api/personalized-roadmap?studentId=${dbStudent._id}`,
           { cache: 'no-store' }
         );
 
