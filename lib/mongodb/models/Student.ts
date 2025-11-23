@@ -252,9 +252,6 @@ const StudentSchema = new Schema<IStudent>(
   }
 );
 
-// Xóa cached model để đảm bảo schema mới được load
-if (mongoose.models.Student) {
-  delete mongoose.models.Student;
-}
 
-export const Student: Model<IStudent> = mongoose.model<IStudent>('Student', StudentSchema);
+export const Student: Model<IStudent> =
+  mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);
