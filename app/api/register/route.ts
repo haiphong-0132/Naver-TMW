@@ -11,7 +11,7 @@ const NCP_API_KEY = process.env.NCP_API_KEY;
 const GENERATION_TASK_URL = process.env.NCP_CLOVASTUDIO_TUNING_ENDPOINT || 
   'https://clovastudio.stream.ntruss.com/v2/tasks/00vpqbzj/chat-completions';
 const HCX_007_URL = 'https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-007';
-const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:8001';
+const PYTHON_API_URL = process.env.PYTHON_API_URL || 'https://clovax-456m.vercel.app';
 const CLOVA_RAG_ROADMAP_URL = `${PYTHON_API_URL}/roadmap/personalized`;
 
 // Map career names to available job files
@@ -280,6 +280,9 @@ Provide career recommendations for this student.`;
 
 // Helper: Call CLOVA RAG Roadmap API
 async function callClovaRagRoadmap(userId: string, jobname: string): Promise<any> {
+  console.log('🔄 Calling CLOVA RAG API:', CLOVA_RAG_ROADMAP_URL);
+  console.log('📦 Request body:', { user_id: userId, jobname: jobname });
+  
   const response = await fetch(CLOVA_RAG_ROADMAP_URL, {
     method: 'POST',
     headers: {
@@ -292,10 +295,14 @@ async function callClovaRagRoadmap(userId: string, jobname: string): Promise<any
   });
 
   if (!response.ok) {
-    throw new Error(`CLOVA RAG Roadmap failed: ${await response.text()}`);
+    const errorText = await response.text();
+    console.error('❌ CLOVA RAG API Error:', response.status, errorText);
+    throw new Error(`CLOVA RAG Roadmap failed (${response.status}): ${errorText}`);
   }
 
-  return await response.json();
+  const result = await response.json();
+  console.log('✅ CLOVA RAG API Success, stages:', result.stages?.length || 0);
+  return result;
 }
 
 export async function POST(request: NextRequest) {

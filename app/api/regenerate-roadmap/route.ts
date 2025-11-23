@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
-const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:8001';
+const PYTHON_API_URL = process.env.PYTHON_API_URL || 'https://clovax-456m.vercel.app';
 const HCX_007_URL = 'https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-007';
 const NCP_API_KEY = process.env.NCP_API_KEY;
 
@@ -221,18 +221,23 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Call Python API to generate personalized roadmap
     // Note: Python API will read student data directly from MongoDB
-    console.log('Step 4: Generating personalized roadmap...');
+    console.log('Step 3: Generating personalized roadmap...');
+    console.log('🔄 Calling Python API:', `${PYTHON_API_URL}/roadmap/personalized`);
+    console.log('📦 Request body:', { user_id: student._id.toString(), jobname: student.career.actualCareer });
+    
     const roadmapRes = await fetch(`${PYTHON_API_URL}/roadmap/personalized`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: student.studentCode,
-        jobname: student.career.targetCareerID,
+        user_id: student._id.toString(),
+        jobname: student.career.actualCareer || student.career.targetCareerID,
       }),
     });
 
     if (!roadmapRes.ok) {
-      throw new Error(`Python API error: ${roadmapRes.status}`);
+      const errorText = await roadmapRes.text();
+      console.error('❌ Python API Error:', roadmapRes.status, errorText);
+      throw new Error(`Python API error (${roadmapRes.status}): ${errorText}`);
     }
 
     const roadmapData = await roadmapRes.json();
