@@ -493,65 +493,8 @@ export async function POST(request: NextRequest) {
       await careerEntry.save();
     }
 
-    // STEP 6: Sync user to clova-rag-roadmap users.json
-    console.log('Step 6: Syncing user to clova-rag-roadmap...');
-    try {
-      // Map career to available job file
-      const mappedCareer = mapCareerToJobFile(predictedCareer);
-      console.log(`📌 Career mapping: "${predictedCareer}" → "${mappedCareer}"`);
-      
-      // Format user data for clova-rag-roadmap (matching users.json structure)
-      const clovaUserData = {
-        user_id: newStudent._id.toString(),
-        full_name: data.fullName,
-        current_semester: data.currentSemester,
-        gpa: data.gpa || 0,
-        target_career_id: mappedCareer, // Use mapped career
-        actual_career: predictedCareer,
-        time_per_week_hours: 10,
-        it_skills: data.skills.itSkills,
-        soft_skills: data.skills.softSkills || [],
-        skills: {
-          technical: technicalSkills,
-          general: generalSkills,
-        },
-        interests: data.interests || [],
-        projects: [],
-        academic: {
-          current_semester: data.currentSemester,
-          gpa: data.gpa || 0,
-          courses: [],
-        },
-        career: {
-          target_career_id: mappedCareer, // Use mapped career
-          actual_career: predictedCareer,
-          target_confidence: 0.8,
-        },
-        availability: {
-          time_per_week_hours: 10,
-        },
-      };
-      
-      const syncResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/sync-user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(clovaUserData),
-      });
-      
-      if (syncResponse.ok) {
-        console.log('✅ User synced successfully');
-        // Wait a bit for file system to update
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } else {
-        const errorData = await syncResponse.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('❌ Failed to sync user, status:', syncResponse.status, 'error:', errorData);
-        throw new Error(`Sync user failed: ${errorData.error || syncResponse.statusText}`);
-      }
-    } catch (error) {
-      console.error('❌ Step 6 failed - cannot sync user:', error);
-      // This is critical - if sync fails, roadmap generation will fail
-      throw new Error(`User sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    // STEP 6: Bỏ đồng bộ user sang clova-rag-roadmap vì server Flask đã đọc từ MongoDB
+    // ...existing code...
 
     // STEP 7: Call CLOVA RAG Roadmap API for personalized roadmap
     console.log('Step 7: Generating personalized roadmap...');

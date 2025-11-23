@@ -1,13 +1,23 @@
+
+import os
 import json
 import uuid
 import re
 import copy
+from bson import ObjectId
+
 
 import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
+from pymongo import MongoClient
+from .search_api import BASE_DIR, NCP_API_KEY
 
-from .search_api import BASE_DIR, NCP_API_KEY, USERS
+# Kết nối MongoDB
+MONGO_URI = "mongodb+srv://tatruongvuptit:3rAzJ2rPTw9yXkBN@cluster.znzh1.mongodb.net/"
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client["career-advisor"]
+users_collection = db["users"]
 
 app = FastAPI()
 
@@ -349,16 +359,22 @@ def apply_personalization_to_canonical_roadmap(
 
 @app.post("/roadmap/personalized")
 async def get_personalized_roadmap(req: PersonalizeRequest):
-    """
-    Input:  { "user_id": "...", "jobname": "big data engineer" }
-    """
-    # Reload users from file to get latest data
-    from .search_api import load_users
-    users = load_users()
-    
-    user = users.get(req.user_id)
+    # Lấy user từ MongoDB
+    print(req.user_id)
+    user = users_collection.find_one({"_id": ObjectId(req.user_id)})
     if not user:
         return {"error": "Unknown user_id"}
+
+    # Lấy student từ MongoDB 
+    student_id = user.get("studentID")
+    student = None
+    if student_id:
+        student = db["students"].find_one({"_id": ObjectId(student_id)})
+
+    # Gộp thông tin user và student
+    profile = dict(user)
+    if student:
+        profile.update(student)
 
     jobname = (req.jobname or 'JOB_NAME').strip()
 
@@ -367,7 +383,7 @@ async def get_personalized_roadmap(req: PersonalizeRequest):
     except FileNotFoundError:
         return {"error": f"Roadmap file for job '{jobname}' not found"}
 
-    profile_text = build_profile_text(user)
+    profile_text = build_profile_text(profile)
     roadmap_json_str = json.dumps(canonical_roadmap, ensure_ascii=False, indent=2)
 
     user_prompt = (
@@ -381,7 +397,6 @@ async def get_personalized_roadmap(req: PersonalizeRequest):
     )
 
     raw_answer = call_clova_chat(SYSTEM_PROMPT, user_prompt)
-
     model_roadmap = extract_json_from_text(raw_answer)
 
     if isinstance(model_roadmap, dict) and "stages" in model_roadmap:
