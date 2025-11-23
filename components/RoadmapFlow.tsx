@@ -224,16 +224,16 @@ export default function RoadmapFlow({ roadmap, onToggleItem }: RoadmapFlowProps)
                       <div className="flex-1">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className={`text-sm font-bold ${colors.text} ${item.check ? 'line-through opacity-60' : ''} flex-1`}>
-                            {item.title}
+                            {item.name || item.title || 'Untitled Item'}
                           </div>
                           <div className="text-lg flex-shrink-0">{statusIcon}</div>
                         </div>
                         
                         <div className="flex items-center gap-2 flex-wrap mt-2">
-                          {item.estimatedHours > 0 && (
+                          {(item.estimatedHours || item.estimated_hours) > 0 && (
                             <div className="text-xs bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full border border-gray-300 font-semibold flex items-center gap-1">
                               <span>⏱️</span>
-                              <span>{item.estimatedHours}h</span>
+                              <span>{item.estimatedHours || item.estimated_hours}h</span>
                             </div>
                           )}
                           {item.check && (

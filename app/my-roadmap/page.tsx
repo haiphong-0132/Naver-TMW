@@ -248,11 +248,11 @@ export default function MyRoadmapPage() {
                                   />
                                   <div className="flex-1 flex items-start justify-between">
                                     <h4 className={`font-semibold ${item.check ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                                      {item.title}
+                                      {item.name || item.title || 'Untitled Item'}
                                     </h4>
-                                    {item.estimatedHours > 0 && (
+                                    {(item.estimatedHours || item.estimated_hours) > 0 && (
                                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2 flex-shrink-0">
-                                        ⏱️ {item.estimatedHours}h
+                                        ⏱️ {item.estimatedHours || item.estimated_hours}h
                                       </span>
                                     )}
                                   </div>
