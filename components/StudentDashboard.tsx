@@ -56,9 +56,9 @@ interface StudentDashboardProps {
 }
 
 // biểu đồ kỹ năng
-function SkillsChart({ technical = {}, general = {} }: { technical?: Record<string, number>, general?: Record<string, number> }) {
-  const technicalSkills = Object.keys(technical);
-  const generalSkills = Object.keys(general);
+function SkillsChart({ technical = {}, general = {} }: { technical?: Record<string, number> | string[], general?: Record<string, number> | string[] }) {
+  const technicalSkills = Array.isArray(technical) ? technical : Object.keys(technical || {});
+  const generalSkills = Array.isArray(general) ? general : Object.keys(general || {});
 
   return (
     <div className="space-y-6">
@@ -155,7 +155,7 @@ export default function StudentDashboard({ student, hotCareers, currentRoadmap }
               <span className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">📊</span>
               Skills Profile
             </h3>
-            <SkillsChart technical={student.skills.technical} general={student.skills.general} />
+            <SkillsChart technical={student.itSkill} general={student.softSkill} />
           </div>
         </div>
 

@@ -246,7 +246,7 @@ export default async function RoadmapPage({
         <div className="text-center">
           <h2 className="text-2xl font-bold text-foreground mb-2">Roadmap Content Not Found</h2>
           <p className="text-muted-foreground mb-4">We found the career but couldn't load the roadmap content.</p>
-          <a href="/career-advisor/results" className="text-primary hover:underline">Go back to Results</a>
+          <a href="/dashboard" className="text-primary hover:underline">Back to Dashboard</a>
         </div>
       </div>
     );

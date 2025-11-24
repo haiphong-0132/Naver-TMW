@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           const studentId = user.studentId?._id?.toString() || user.studentId?.toString() || null;
+          const studentCode = (user.studentId as any)?.studentCode || null;
           console.log('Auth - Returning studentId:', studentId);
 
           return {
@@ -48,7 +49,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             studentId: studentId,
-            studentCode: (user.studentId as any)?.studentCode || null,
+            studentCode: studentCode,
           };
         } catch (error) {
           console.error('Auth error:', error);
