@@ -190,7 +190,7 @@ async function seed() {
         rank: 1,
       },
     ],
-    studentSnapshot: { gpa: 3.6, skills: { python: 5 }, personality: student.personality, interests: student.interests },
+    studentSnapshot: { gpa: 3.6, skills: { python: 5 }, interests: student.interests },
     aiAnalysis: { overallAssessment: 'Good fit', keyStrengths: ['Python'], areasForImprovement: ['DS'], careerReadiness: 'needs_preparation' },
     engagement: { viewed: false },
   });

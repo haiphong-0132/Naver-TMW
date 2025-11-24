@@ -12,6 +12,7 @@ export interface IStudent {
   university?: string;
   major?: string;
   careerGoals?: string;
+  aiCareerRecommendation?: string;
   
   // Academic Info
   academic: {
@@ -84,6 +85,7 @@ const StudentSchema = new Schema<IStudent>(
     university: String,
     major: String,
     careerGoals: String,
+    aiCareerRecommendation: String,
 
     // Academic Info
     academic: {

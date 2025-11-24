@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb/connection';
-import { User } from '@/lib/mongodb/models/User';
-import { Student } from '@/lib/mongodb/models/Student';
-import { PersonalizedRoadmap } from '@/lib/mongodb/models/PersonalizedRoadmap';
-import { Career } from '@/lib/mongodb/models/Career';
+import { User, Student, PersonalizedRoadmap, Career } from '@/lib/mongodb/models';
 import bcrypt from 'bcryptjs';
 import { PTIT_IT_COURSES } from '@/data/universities/ptit-courses';
 
