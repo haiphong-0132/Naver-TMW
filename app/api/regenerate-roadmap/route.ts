@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb/connection';
-import { Student } from '@/lib/mongodb/models/Student';
-import { PersonalizedRoadmap } from '@/lib/mongodb/models/PersonalizedRoadmap';
+import { Student, PersonalizedRoadmap } from '@/lib/mongodb/models';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -104,12 +103,12 @@ Provide career recommendations for this student.`;
 }
 
 // Helper: Call Generation Task AI (tuned model) - same as register
-async function callGenerationTask(itSkills: string[], softSkills: string[]): Promise<string> {
+async function callGenerationTask(itSkill: string[], softSkill: string[]): Promise<string> {
   const GENERATION_TASK_URL = process.env.NCP_CLOVASTUDIO_TUNING_ENDPOINT || 
     'https://clovastudio.stream.ntruss.com/v2/tasks/00vpqbzj/chat-completions';
   
   const systemPrompt = 'speak in English';
-  const userPrompt = `Given the following IT skills: ${itSkills.join(', ')} and Soft skills: ${softSkills.join(', ')}, the job role`;
+  const userPrompt = `Given the following IT skills: ${itSkill.join(', ')} and Soft skills: ${softSkill.join(', ')}, the job role`;
 
   const response = await fetch(GENERATION_TASK_URL, {
     method: 'POST',
@@ -213,7 +212,7 @@ export async function POST(request: NextRequest) {
     student.career.targetCareerID = mapCareerToJobFile(predictedCareer);
     student.career.actualCareer = predictedCareer;
     student.career.targetConfidence = 0.85;
-    student.aiCareerRecommendation = careerRecommendation;
+    (student as any).aiCareerRecommendation = careerRecommendation;
 
     // Save student with updated career info
     await student.save();

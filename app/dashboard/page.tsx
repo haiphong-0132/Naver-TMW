@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import StudentDashboard from '@/components/StudentDashboard';
 import Navbar from '@/components/Navbar';
+import connectDB from '@/lib/mongodb/connection';
+import { Student, Career, PersonalizedRoadmap } from '@/lib/mongodb/models';
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -12,10 +14,7 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const { studentId } = session.user as any;
-
-  console.log('Dashboard - Session user:', session.user);
-  console.log('Dashboard - Student ID:', studentId);
+  const { studentId } = session.user;
 
   if (!studentId) {
     return (
@@ -42,30 +41,19 @@ export default async function DashboardPage() {
   let currentRoadmap: any = null;
   let currentCareerId: string | null = null;
 
-  // Get base URL for API calls (works both locally and on Vercel)
-  const baseUrl = process.env.NEXTAUTH_URL || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
   try {
-    const studentRes = await fetch(
-      `${baseUrl}/api/students/${studentId}`,
-      { cache: 'no-store' }
-    );
-    
-    console.log('Dashboard - Student API status:', studentRes.status);
-    
-    const studentData = await studentRes.json();
-    console.log('Dashboard - Student data received:', !!studentData.student);
+    await connectDB();
 
-    if (studentData.student) {
-      dbStudent = studentData.student;
+    // 1. Fetch Student
+    dbStudent = await Student.findById(studentId).lean();
 
+    if (dbStudent) {
       student = {
         id: dbStudent.studentCode,
-        studentDbId: dbStudent._id,
+        studentDbId: dbStudent._id.toString(),
         name: dbStudent.fullName,
         university: dbStudent.university || 'Unknown University',
-        major: dbStudent.major || 'Unknown Major',
+        major: dbStudent.major || 'Computer Science',
         actualCareer:
           dbStudent.career?.actualCareer ||
           dbStudent.career?.targetCareerID ||
@@ -87,8 +75,8 @@ export default async function DashboardPage() {
         },
         skills: {} as Record<string, number>,
         interests: dbStudent.interests || [],
-        itSkills: dbStudent.itSkill || [],
-        softSkills: dbStudent.softSkill || [],
+        itSkill: dbStudent.itSkill || [],
+        softSkill: dbStudent.softSkill || [],
       };
 
       // Process skills
@@ -127,15 +115,19 @@ export default async function DashboardPage() {
       }
     }
 
-    // Fetch careers
-    const careersRes = await fetch(
-      `${baseUrl}/api/careers`,
-      { cache: 'no-store' }
-    );
-    const careersData = await careersRes.json();
-    hotCareers = careersData.careers?.slice(0, 6) || [];
+    // 2. Fetch Careers (Limit to top 6 trending)
+    const careersData = await Career.find({ isActive: true })
+      .select('careerId title category description overview popularity')
+      .sort({ popularity: -1 })
+      .lean();
+    
+    hotCareers = careersData.map((c: any) => ({
+      ...c,
+      _id: c._id.toString(),
+      id: c.careerId
+    })) || [];
 
-    const currentCareer = careersData.careers?.find(
+    const currentCareer = hotCareers.find(
       (c: any) => c.title.toLowerCase() === student?.actualCareer?.toLowerCase()
     );
 
@@ -143,23 +135,32 @@ export default async function DashboardPage() {
       currentCareerId = currentCareer._id;
     }
 
-    // Fetch personalized roadmap
+    // 3. Fetch Personalized Roadmap
     if (dbStudent) {
       try {
-        const personalizedRoadmapRes = await fetch(
-          `${baseUrl}/api/personalized-roadmap?studentId=${dbStudent._id}`,
-          { cache: 'no-store' }
-        );
+        const roadmapData = await PersonalizedRoadmap.aggregate([
+          { $match: { studentId: dbStudent._id, isActive: true } },
+          { $sort: { generatedAt: -1 } },
+          { $limit: 1 },
+          { 
+            $project: { 
+              careerName: 1, 
+              description: 1, 
+              generatedAt: 1, 
+              stagesCount: { $size: { $ifNull: ["$stages", []] } } 
+            } 
+          }
+        ]);
 
-        if (personalizedRoadmapRes.ok) {
-          const personalizedData = await personalizedRoadmapRes.json();
-          const roadmap = personalizedData.roadmap;
+        const roadmap = roadmapData[0];
+
+        if (roadmap) {
           currentRoadmap = {
-            _id: roadmap._id,
+            _id: roadmap._id.toString(),
             careerName: roadmap.careerName,
             description: roadmap.description,
             generatedAt: roadmap.generatedAt,
-            stagesCount: roadmap.stages?.length || 0,
+            stagesCount: roadmap.stagesCount || 0,
           };
         }
       } catch (err) {
@@ -186,7 +187,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-background selection:bg-primary/20">
       <Navbar />
       <main className="max-w-7xl mx-auto px-6 py-8">
         <StudentDashboard

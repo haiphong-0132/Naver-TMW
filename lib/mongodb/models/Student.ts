@@ -5,81 +5,58 @@ export interface IStudent {
   studentCode: string; // user_id in users.json
   
   // Personal Info
-  fullName: string; // full_name in users.json
-  dateOfBirth?: Date;
-  gender?: 'male' | 'female' | 'other';
+  fullName: string;
   phone?: string;
+  dateOfBirth?: Date;
+  gender?: string;
+  university?: string;
+  major?: string;
+  careerGoals?: string;
+  aiCareerRecommendation?: string;
   
-  // Academic Info (academic object in users.json)
+  // Academic Info
   academic: {
-    currentSemester: number; // current_semester
-    gpa: number; // gpa (thang 4.0)
+    currentSemester: number;
+    gpa: number;
     courses: Array<{
       code: string;
       name: string;
-      semester: number; // kỳ học (1-9)
-      grade: number; // thang 10
+      grade: number;
     }>;
   };
-  university?: string;
-  major?: string;
   
-  // Career Info (career object in users.json)
+  // Career Info
   career: {
-    targetCareerID: string; // target_career_id
-    actualCareer?: string; // actual_career
-    targetConfidence?: number; // target_confidence
+    targetCareerID: string;
+    actualCareer: string;
+    targetConfidence?: number;
   };
-  
+
   // Availability
   availability: {
-    timePerWeekHours: number; // time_per_week_hours
+    timePerWeekHours: number;
   };
   
-  // Skills (skills object in users.json)
+  // Skills
   skills: {
-    technical: Record<string, number>; // python: 4, javascript: 3, etc. (1-10)
-    general: Record<string, number>; // programming: 5, problem_solving: 8, etc. (1-10)
+    technical: Record<string, number>;
+    general: Record<string, number>;
   };
+
+  // Lists
+  interests: string[];
+  projects: string[];
+  itSkill: string[];
+  softSkill: string[];
   
-  // IT and Soft Skills (arrays in users.json)
-  itSkill: string[]; // it_skill array
-  softSkill: string[]; // soft_skill array
-  
-  // Interests & Projects
-  interests: string[]; // interests array (game_dev, web_dev, etc.)
-  projects: string[]; // projects array
-  
-  // Personality Assessment (optional, for future use)
-  personality?: {
-    mbti?: string;
-    traits?: {
-      analytical?: number;
-      creative?: number;
-      teamwork?: number;
-      leadership?: number;
-      technical?: number;
-    };
-    assessmentDate?: Date;
-    assessmentSource?: 'self' | 'ai' | 'test';
-  };
-  
-  // Career Goals
-  careerGoals?: string;
-  careerStatus?: 'exploring' | 'decided' | 'transitioning';
-  aiCareerRecommendation?: string; // HCX-007 career recommendation text
-  
-  // Metadata (meta object in users.json)
+  // Metadata
   meta?: {
     source?: string;
     createdAt?: Date;
     updatedAt?: Date;
   };
-  
-  // MongoDB timestamps
   createdAt: Date;
   updatedAt: Date;
-  profileCompleteness: number;
 }
 
 const StudentSchema = new Schema<IStudent>(
@@ -102,155 +79,59 @@ const StudentSchema = new Schema<IStudent>(
       required: true,
       trim: true,
     },
-    dateOfBirth: Date,
-    gender: {
-      type: String,
-      enum: ['male', 'female', 'other'],
-    },
     phone: String,
-    
-    // Academic Info (matching users.json structure)
-    academic: {
-      currentSemester: {
-        type: Number,
-        required: true,
-        min: 1,
-        max: 12,
-      },
-      gpa: {
-        type: Number,
-        required: true,
-        min: 0,
-        max: 4.0,
-      },
-      courses: [
-        {
-          _id: false, // Tắt auto-generate _id cho subdocuments
-          code: {
-            type: String,
-            required: true,
-          },
-          name: {
-            type: String,
-            required: true,
-          },
-          semester: {
-            type: Number,
-            required: true,
-            min: 1,
-            max: 9, // kỳ học (1-9)
-          },
-          grade: {
-            type: Number,
-            required: true,
-            min: 0,
-            max: 10, // thang 10
-          },
-        },
-      ],
-    },
+    dateOfBirth: Date,
+    gender: String,
     university: String,
     major: String,
-    
+    careerGoals: String,
+    aiCareerRecommendation: String,
+
+    // Academic Info
+    academic: {
+      currentSemester: { type: Number, default: 1 },
+      gpa: { type: Number, default: 0 },
+      courses: [{
+        code: String,
+        name: String,
+        grade: Number
+      }]
+    },
+
     // Career Info
     career: {
-      targetCareerID: {
-        type: String,
-        required: true,
-      },
+      targetCareerID: String,
       actualCareer: String,
-      targetConfidence: Number,
+      targetConfidence: Number
     },
-    
+
     // Availability
     availability: {
-      timePerWeekHours: {
-        type: Number,
-        required: true,
-        min: 0,
-        max: 168, // max hours in a week
-      },
+      timePerWeekHours: { type: Number, default: 0 }
     },
-    
-    // Skills (matching users.json structure)
+
+    // Skills
     skills: {
-      technical: {
-        type: Map,
-        of: Number, // skill_name: level (1-10)
-      },
-      general: {
-        type: Map,
-        of: Number, // skill_name: level (1-10)
-      },
+      technical: { type: Map, of: Number },
+      general: { type: Map, of: Number }
     },
-    
-    // IT and Soft Skills arrays
-    itSkill: {
-      type: [String],
-      default: [],
-    },
-    softSkill: {
-      type: [String],
-      default: [],
-    },
-    
-    // Interests & Projects
-    interests: {
-      type: [String],
-      default: [],
-    },
-    projects: {
-      type: [String],
-      default: [],
-    },
-    
-    // Personality (optional)
-    personality: {
-      mbti: {
-        type: String,
-        uppercase: true,
-      },
-      traits: {
-        analytical: { type: Number, min: 0, max: 10 },
-        creative: { type: Number, min: 0, max: 10 },
-        teamwork: { type: Number, min: 0, max: 10 },
-        leadership: { type: Number, min: 0, max: 10 },
-        technical: { type: Number, min: 0, max: 10 },
-      },
-      assessmentDate: Date,
-      assessmentSource: {
-        type: String,
-        enum: ['self', 'ai', 'test'],
-      },
-    },
-    
-    // Career Goals
-    careerGoals: String,
-    careerStatus: {
-      type: String,
-      enum: ['exploring', 'decided', 'transitioning'],
-      default: 'exploring',
-    },
-    aiCareerRecommendation: String, // HCX-007 career recommendation
-    
+
+    // Lists
+    interests: [String],
+    projects: [String],
+    itSkill: [String],
+    softSkill: [String],
+
     // Metadata
     meta: {
       source: String,
       createdAt: Date,
-      updatedAt: Date,
-    },
-    
-    profileCompleteness: {
-      type: Number,
-      min: 0,
-      max: 100,
-      default: 0,
-    },
+      updatedAt: Date
+    }
   },
   {
     timestamps: true,
   }
 );
 
-export const Student: Model<IStudent> =
-  mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);
+export const Student: Model<IStudent> = mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);

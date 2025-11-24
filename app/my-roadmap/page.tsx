@@ -2,10 +2,11 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import type { DiagramDetailSelection } from '@/components/RoadmapFlow';
 
 // Dynamically import RoadmapFlow to avoid SSR issues
 const RoadmapFlow = dynamic(() => import('@/components/RoadmapFlow'), {
@@ -27,6 +28,7 @@ export default function MyRoadmapPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'flow'>('list');
+  const [selectedDetail, setSelectedDetail] = useState<DiagramDetailSelection | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -60,6 +62,50 @@ export default function MyRoadmapPage() {
     fetchRoadmap();
   }, [session]);
 
+  const handleDetailSelect = useCallback((detail: DiagramDetailSelection | null) => {
+    setSelectedDetail(detail);
+  }, []);
+
+  const findItemTitle = useCallback((itemId: string) => {
+    if (!roadmap || !roadmap.stages) return itemId;
+    for (const stage of roadmap.stages) {
+      for (const area of stage.areas) {
+        const item = area.items.find((i: any) => (i.id || i.itemId) === itemId);
+        if (item) return item.name || item.title;
+      }
+    }
+    return itemId;
+  }, [roadmap]);
+
+  const selectItemById = useCallback((itemId: string) => {
+    if (!roadmap || !roadmap.stages) return;
+    for (const stage of roadmap.stages) {
+      for (const area of stage.areas) {
+        const item = area.items.find((i: any) => (i.id || i.itemId) === itemId);
+        if (item) {
+          // Construct detail object based on item structure
+          // This might need adjustment based on your exact data structure
+          setSelectedDetail({
+            type: 'topic',
+            stageId: stage.id,
+            areaId: area.id,
+            itemId: item.id || item.itemId,
+            title: item.name || item.title,
+            category: item.itemType || item.category || 'skill',
+            description: item.description,
+            skillTags: item.skillTags,
+            prerequisites: item.prerequisites,
+            requiredSkills: item.requiredSkills,
+            estimatedHours: item.estimatedHours,
+            personalization: item.personalization,
+            check: item.check
+          });
+          return;
+        }
+      }
+    }
+  }, [roadmap]);
+
   const handleToggleItem = async (stageIdx: number, areaIdx: number, itemIdx: number) => {
     if (!session?.user?.studentId || !roadmap) return;
 
@@ -92,12 +138,12 @@ export default function MyRoadmapPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+      <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải roadmap...</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground font-medium">Loading your journey...</p>
           </div>
         </div>
       </div>
@@ -105,180 +151,206 @@ export default function MyRoadmapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="min-h-screen bg-background selection:bg-primary/20">
       <Navbar />
       
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {!roadmap || error ? (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
-              <span className="text-4xl">📋</span>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Chưa có roadmap cá nhân hóa
-            </h1>
-            <p className="text-gray-600 mb-8">
-              Roadmap sẽ được tạo tự động sau khi bạn hoàn tất đăng ký và cập nhật profile
-            </p>
-            <Link
-              href="/profile"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg font-semibold"
-            >
-              Cập nhật Profile →
-            </Link>
-          </div>
-        ) : (
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="flex-1">
-                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                    <span>✨</span>
-                    Lộ trình cá nhân hóa bởi AI
-                  </div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-                    {roadmap.careerName}
-                  </h1>
-                  <p className="text-gray-600 text-lg">{roadmap.description}</p>
-                </div>
-                
-                {/* View Mode Toggle */}
-                <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-                      viewMode === 'list'
-                        ? 'bg-white text-purple-600 shadow'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    📋 Danh sách
-                  </button>
-                  <button
-                    onClick={() => setViewMode('flow')}
-                    className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-                      viewMode === 'flow'
-                        ? 'bg-white text-purple-600 shadow'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    🎨 Flow Diagram
-                  </button>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">My Learning Path</h1>
+            <p className="text-muted-foreground mt-1">Track your progress and master new skills</p>
+          </div>
+          
+          {roadmap && (
+            <div className="flex items-center gap-3 bg-card px-4 py-2 rounded-full border border-border shadow-sm">
+              <div className="flex -space-x-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border-2 border-card text-xs font-bold text-primary">
+                  {roadmap.stages?.length || 0}
                 </div>
               </div>
+              <span className="text-sm font-medium text-foreground">Stages to complete</span>
+            </div>
+          )}
+        </div>
 
-              <div className="mt-6 flex gap-4 text-sm flex-wrap">
-                <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-semibold">
-                  {roadmap.stages?.length || 0} giai đoạn
-                </div>
-                {(() => {
-                  const totalItems = roadmap.stages?.reduce((sum: number, stage: any) => 
-                    sum + stage.areas?.reduce((areaSum: number, area: any) => 
-                      areaSum + (area.items?.length || 0), 0
-                    ), 0
-                  ) || 0;
-                  const completedItems = roadmap.stages?.reduce((sum: number, stage: any) => 
-                    sum + stage.areas?.reduce((areaSum: number, area: any) => 
-                      areaSum + (area.items?.filter((item: any) => item.check).length || 0), 0
-                    ), 0
-                  ) || 0;
-                  const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-                  
-                  return (
-                    <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-semibold">
-                      ✓ {completedItems}/{totalItems} hoàn thành ({percentage}%)
+        {error ? (
+          <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h3 className="text-lg font-bold text-red-900 mb-2">Unable to load roadmap</h3>
+            <p className="text-red-700 mb-6">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: Diagram */}
+            <div className="lg:col-span-8 bg-card rounded-3xl shadow-sm border border-border p-1 overflow-hidden h-[800px]">
+              <RoadmapFlow 
+                roadmapData={roadmap} 
+                onSelectDetail={handleDetailSelect}
+                selectedItemId={selectedDetail?.itemId}
+              />
+            </div>
+
+            {/* Right Column: Details Panel */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-24 space-y-6">
+                {selectedDetail ? (
+                  <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden animate-in slide-in-from-right-4 duration-300">
+                    <div className="h-2 bg-gradient-to-r from-primary to-secondary" />
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${
+                          selectedDetail.category === 'skill' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                          selectedDetail.category === 'project' ? 'bg-purple-100 text-purple-700 border-purple-200' :
+                          selectedDetail.category === 'course' ? 'bg-green-100 text-green-700 border-green-200' :
+                          'bg-slate-100 text-slate-700 border-slate-200'
+                        }`}>
+                          {selectedDetail.category}
+                        </span>
+                      </div>
+                      
+                      <h2 className="text-2xl font-bold text-foreground mb-3">
+                        {selectedDetail.title}
+                      </h2>
+
+                      {/* AI Recommendation */}
+                      {selectedDetail.personalization && (
+                        <div className="mb-6 bg-primary/5 rounded-xl p-4 border border-primary/10">
+                          <h4 className="font-bold text-primary text-xs uppercase tracking-wide mb-2 flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            AI Recommendation
+                          </h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-foreground">Status:</span>
+                              <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded-full border ${
+                                selectedDetail.personalization.status === 'already_mastered' ? 'bg-green-100 text-green-700 border-green-200' :
+                                selectedDetail.personalization.status === 'high_priority' ? 'bg-red-100 text-red-700 border-red-200' :
+                                selectedDetail.personalization.status === 'medium_priority' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                selectedDetail.personalization.status === 'low_priority' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                'bg-slate-100 text-slate-700 border-slate-200'
+                              }`}>
+                                {selectedDetail.personalization.status?.replace('_', ' ')}
+                              </span>
+                            </div>
+                            {selectedDetail.personalization.reason && (
+                              <p className="text-sm text-muted-foreground italic">
+                                {selectedDetail.personalization.reason}
+                              </p>
+                            )}
+                            {selectedDetail.personalization.description && (
+                               <p className="text-sm text-muted-foreground mt-2">
+                                 {selectedDetail.personalization.description}
+                               </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="prose prose-sm text-muted-foreground mb-6">
+                        <p>{selectedDetail.description || "No description available."}</p>
+                      </div>
+
+                      {/* Skill Tags */}
+                      {selectedDetail.skillTags && selectedDetail.skillTags.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="font-bold text-foreground text-xs uppercase tracking-wide mb-2">Tags</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedDetail.skillTags.map(tag => (
+                              <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded text-xs font-medium border border-border">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Estimated Hours */}
+                      {selectedDetail.estimatedHours && (
+                        <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span>Estimated time: <span className="font-medium text-foreground">{selectedDetail.estimatedHours} hours</span></span>
+                        </div>
+                      )}
+
+                      {/* Prerequisites */}
+                      {selectedDetail.prerequisites && selectedDetail.prerequisites.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="font-bold text-foreground text-xs uppercase tracking-wide mb-2">Prerequisites</h4>
+                          <ul className="space-y-1">
+                            {selectedDetail.prerequisites.map(req => (
+                              <li key={req} className="text-sm text-muted-foreground flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                <button 
+                                  onClick={() => selectItemById(req)}
+                                  className="hover:text-primary hover:underline text-left"
+                                >
+                                  {findItemTitle(req)}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Required Skills */}
+                      {selectedDetail.requiredSkills && selectedDetail.requiredSkills.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="font-bold text-foreground text-xs uppercase tracking-wide mb-2">Required Skills</h4>
+                          <ul className="space-y-1">
+                            {selectedDetail.requiredSkills.map((req: any, i: number) => (
+                              <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                {req.tag} (Level {req.min_level})
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {selectedDetail.category === 'project' && (
+                        <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                          <h4 className="font-bold text-foreground text-sm mb-2 flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                            Project Deliverable
+                          </h4>
+                          <p className="text-xs text-muted-foreground">
+                            Complete this project to demonstrate your mastery of the concepts in this area.
+                          </p>
+                        </div>
+                      )}
+                      
+                      <div className="mt-6 pt-6 border-t border-border flex justify-between items-center">
+                        <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => setSelectedDetail(null)}>
+                          Close
+                        </button>
+                        <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm">
+                          Mark as Complete
+                        </button>
+                      </div>
                     </div>
-                  );
-                })()}
-                {roadmap.generatedAt && (
-                  <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-semibold">
-                    {new Date(roadmap.generatedAt).toLocaleDateString('vi-VN')}
+                  </div>
+                ) : (
+                  <div className="bg-card/50 rounded-2xl border border-dashed border-border p-8 text-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 text-muted-foreground">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Interactive Roadmap</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Click on any item in the roadmap to view details, resources, and track your progress.
+                    </p>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Conditional Rendering based on View Mode */}
-            {viewMode === 'flow' ? (
-              <RoadmapFlow roadmap={roadmap} onToggleItem={handleToggleItem} />
-            ) : (
-              /* Stages - List View */
-              <div className="space-y-4">
-              {roadmap.stages?.map((stage: any, idx: number) => (
-                <div key={idx} className="bg-white rounded-xl shadow-md p-6">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">{stage.name}</h2>
-                      {stage.recommendedSemesters && stage.recommendedSemesters.length > 0 && (
-                        <p className="text-gray-600">
-                          Học kỳ đề xuất: {stage.recommendedSemesters.join(', ')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Areas */}
-                  <div className="space-y-4 ml-16">
-                    {stage.areas?.map((area: any, areaIdx: number) => (
-                      <div key={areaIdx} className="border-l-4 border-purple-400 pl-4">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">{area.name}</h3>
-                        <div className="grid gap-3">
-                          {area.items?.map((item: any, itemIdx: number) => {
-                            const statusColors = {
-                              already_mastered: 'bg-green-50 border-green-300',
-                              review_needed: 'bg-yellow-50 border-yellow-300',
-                              new_topic: 'bg-blue-50 border-blue-300',
-                            };
-                            const status = item.personalization?.status || 'new_topic';
-
-                            return (
-                              <div
-                                key={itemIdx}
-                                className={`p-4 rounded-lg border-2 ${statusColors[status as keyof typeof statusColors]} transition-all`}
-                              >
-                                <div className="flex items-start gap-3 mb-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={item.check || false}
-                                    onChange={() => handleToggleItem(idx, areaIdx, itemIdx)}
-                                    className="w-5 h-5 mt-0.5 text-purple-600 bg-white border-gray-300 rounded focus:ring-purple-500 focus:ring-2 cursor-pointer flex-shrink-0"
-                                  />
-                                  <div className="flex-1 flex items-start justify-between">
-                                    <h4 className={`font-semibold ${item.check ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                                      {item.name || item.title || 'Untitled Item'}
-                                    </h4>
-                                    {(item.estimatedHours || item.estimated_hours) > 0 && (
-                                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2 flex-shrink-0">
-                                        ⏱️ {item.estimatedHours || item.estimated_hours}h
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                {item.description && (
-                                  <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                                )}
-                                {item.personalization?.personalizedDescription && (
-                                  <div className="mt-2 p-2 bg-purple-50 rounded text-sm">
-                                    <span className="font-semibold text-purple-900">💡 AI: </span>
-                                    <span className="text-purple-800">
-                                      {item.personalization.personalizedDescription}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              </div>
-            )}
           </div>
         )}
       </main>
