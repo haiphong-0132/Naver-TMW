@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb/connection';
-import { Student } from '@/lib/mongodb/models/Student';
-import { PersonalizedRoadmap } from '@/lib/mongodb/models/PersonalizedRoadmap';
+import { Student, PersonalizedRoadmap } from '@/lib/mongodb/models';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -190,7 +189,7 @@ export async function POST(request: NextRequest) {
     console.log('Step 1: Predicting career using Generation Task AI...');
     let predictedCareer: string;
     try {
-      predictedCareer = await callGenerationTask(student.itSkill, student.softSkill);
+      predictedCareer = await callGenerationTask(student.itSkills, student.softSkills);
       console.log('✅ Career predicted:', predictedCareer);
     } catch (error) {
       console.error('Generation Task error:', error);
@@ -210,10 +209,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Update student với career mới
-    student.career.targetCareerID = mapCareerToJobFile(predictedCareer);
+    student.career.targetCareerId = mapCareerToJobFile(predictedCareer);
     student.career.actualCareer = predictedCareer;
     student.career.targetConfidence = 0.85;
-    student.aiCareerRecommendation = careerRecommendation;
+    (student as any).aiCareerRecommendation = careerRecommendation;
 
     // Save student with updated career info
     await student.save();
@@ -230,7 +229,7 @@ export async function POST(request: NextRequest) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: student._id.toString(),
-        jobname: student.career.actualCareer || student.career.targetCareerID,
+        jobname: student.career.actualCareer || student.career.targetCareerId,
       }),
     });
 
@@ -267,7 +266,7 @@ export async function POST(request: NextRequest) {
       studentId: student._id,
       roadmapId: null,
       
-      careerID: roadmapData.career_id || student.career.targetCareerID,
+      careerID: roadmapData.career_id || student.career.targetCareerId,
       careerName: roadmapData.career_name || student.career.actualCareer,
       
       description: roadmapData.description || `Personalized learning roadmap for ${student.career.actualCareer}`,
