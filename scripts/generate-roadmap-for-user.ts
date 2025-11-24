@@ -107,7 +107,7 @@ async function generateRoadmapForUser(studentId: string) {
       studentId: student._id,
       roadmapId: null,
       
-      careerID: personalizedRoadmapData.career_id || student.career?.targetCareerId || '',
+      careerID: personalizedRoadmapData.career_id || student.career?.targetCareerID || '',
       careerName: personalizedRoadmapData.career_name || student.career?.actualCareer || '',
       
       description: personalizedRoadmapData.description || `Personalized learning roadmap`,

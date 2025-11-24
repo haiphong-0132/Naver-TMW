@@ -132,8 +132,8 @@ interface RegistrationRequest {
   
   // Skills
   skills: {
-    itSkills: string[];
-    softSkills: string[];
+    itSkill: string[];
+    softSkill: string[];
   };
   
   // Interests
@@ -145,9 +145,9 @@ interface RegistrationRequest {
 }
 
 // Helper: Call Generation Task AI (tuned model)
-async function callGenerationTask(itSkills: string[], softSkills: string[]): Promise<string> {
+async function callGenerationTask(itSkill: string[], softSkill: string[]): Promise<string> {
   const systemPrompt = 'speak in English';
-  const userPrompt = `Given the following IT skills: ${itSkills.join(', ')} and Soft skills: ${softSkills.join(', ')}, the job role`;
+  const userPrompt = `Given the following IT skills: ${itSkill.join(', ')} and Soft skills: ${softSkill.join(', ')}, the job role`;
 
   const response = await fetch(GENERATION_TASK_URL, {
     method: 'POST',
@@ -215,8 +215,8 @@ Be encouraging, specific, and actionable.`;
 
   const userPrompt = `Student Profile:
 - Name: ${studentInfo.fullName}
-- IT Skills: ${studentInfo.skills.itSkills.join(', ')}
-- Soft Skills: ${studentInfo.skills.softSkills.join(', ')}
+- IT Skills: ${studentInfo.skills.itSkill.join(', ')}
+- Soft Skills: ${studentInfo.skills.softSkill.join(', ')}
 ${studentInfo.interests ? `- Interests: ${studentInfo.interests.join(', ')}` : ''}
 ${studentInfo.currentSemester ? `- Current Semester: ${studentInfo.currentSemester}` : ''}
 ${studentInfo.gpa ? `- GPA: ${studentInfo.gpa}/4.0` : ''}
@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!data.skills?.itSkills || data.skills.itSkills.length === 0) {
+    if (!data.skills?.itSkill || data.skills.itSkill.length === 0) {
       return NextResponse.json(
         { error: 'At least one IT skill is required' },
         { status: 400 }
@@ -336,7 +336,7 @@ export async function POST(request: NextRequest) {
     console.log('Step 1: Predicting career using Generation Task AI...');
     let predictedCareer: string;
     try {
-      predictedCareer = await callGenerationTask(data.skills.itSkills, data.skills.softSkills || []);
+      predictedCareer = await callGenerationTask(data.skills.itSkill, data.skills.softSkill || []);
       console.log('Predicted career:', predictedCareer);
     } catch (error) {
       console.error('Generation Task error:', error);
@@ -394,11 +394,11 @@ export async function POST(request: NextRequest) {
     const generalSkills: Record<string, number> = {};
     
     // Assign default proficiency levels (can be customized later)
-    data.skills.itSkills.forEach(skill => {
+    data.skills.itSkill.forEach(skill => {
       technicalSkills[skill.toLowerCase().replace(/\s+/g, '_')] = 5; // Default level
     });
     
-    data.skills.softSkills?.forEach(skill => {
+    data.skills.softSkill?.forEach(skill => {
       generalSkills[skill.toLowerCase().replace(/\s+/g, '_')] = 5; // Default level
     });
     
@@ -450,8 +450,8 @@ export async function POST(request: NextRequest) {
       },
       
       // IT and Soft Skills arrays
-      itSkill: data.skills.itSkills,
-      softSkill: data.skills.softSkills || [],
+      itSkill: data.skills.itSkill,
+      softSkill: data.skills.softSkill || [],
       
       // Interests & Projects
       interests: data.interests || [],

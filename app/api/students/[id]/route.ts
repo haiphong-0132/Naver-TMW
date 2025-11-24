@@ -65,8 +65,8 @@ export async function PATCH(
     if (body.careerGoals !== undefined) student.careerGoals = body.careerGoals;
     
     // Update skills
-    if (body.itSkill !== undefined) student.itSkills = body.itSkill;
-    if (body.softSkill !== undefined) student.softSkills = body.softSkill;
+    if (body.itSkill !== undefined) student.itSkill = body.itSkill;
+    if (body.softSkill !== undefined) student.softSkill = body.softSkill;
     if (body.interests !== undefined) student.interests = body.interests;
     
     // Update academic info

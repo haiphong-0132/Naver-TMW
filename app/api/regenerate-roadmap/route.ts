@@ -103,12 +103,12 @@ Provide career recommendations for this student.`;
 }
 
 // Helper: Call Generation Task AI (tuned model) - same as register
-async function callGenerationTask(itSkills: string[], softSkills: string[]): Promise<string> {
+async function callGenerationTask(itSkill: string[], softSkill: string[]): Promise<string> {
   const GENERATION_TASK_URL = process.env.NCP_CLOVASTUDIO_TUNING_ENDPOINT || 
     'https://clovastudio.stream.ntruss.com/v2/tasks/00vpqbzj/chat-completions';
   
   const systemPrompt = 'speak in English';
-  const userPrompt = `Given the following IT skills: ${itSkills.join(', ')} and Soft skills: ${softSkills.join(', ')}, the job role`;
+  const userPrompt = `Given the following IT skills: ${itSkill.join(', ')} and Soft skills: ${softSkill.join(', ')}, the job role`;
 
   const response = await fetch(GENERATION_TASK_URL, {
     method: 'POST',
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     console.log('Step 1: Predicting career using Generation Task AI...');
     let predictedCareer: string;
     try {
-      predictedCareer = await callGenerationTask(student.itSkills, student.softSkills);
+      predictedCareer = await callGenerationTask(student.itSkill, student.softSkill);
       console.log('✅ Career predicted:', predictedCareer);
     } catch (error) {
       console.error('Generation Task error:', error);
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update student với career mới
-    student.career.targetCareerId = mapCareerToJobFile(predictedCareer);
+    student.career.targetCareerID = mapCareerToJobFile(predictedCareer);
     student.career.actualCareer = predictedCareer;
     student.career.targetConfidence = 0.85;
     (student as any).aiCareerRecommendation = careerRecommendation;
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: student._id.toString(),
-        jobname: student.career.actualCareer || student.career.targetCareerId,
+        jobname: student.career.actualCareer || student.career.targetCareerID,
       }),
     });
 
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
       studentId: student._id,
       roadmapId: null,
       
-      careerID: roadmapData.career_id || student.career.targetCareerId,
+      careerID: roadmapData.career_id || student.career.targetCareerID,
       careerName: roadmapData.career_name || student.career.actualCareer,
       
       description: roadmapData.description || `Personalized learning roadmap for ${student.career.actualCareer}`,

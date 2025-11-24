@@ -31,8 +31,8 @@ interface StudentDashboardProps {
       general: Record<string, number>;
     };
     interests: string[];
-    itSkills?: string[]; // IT skills from registration
-    softSkills?: string[]; // Soft skills from registration
+    itSkill?: string[]; // IT skills from registration
+    softSkill?: string[]; // Soft skills from registration
   };
   hotCareers: Array<{
     id: string;

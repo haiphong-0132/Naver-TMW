@@ -76,8 +76,8 @@ export default async function DashboardPage() {
         },
         skills: {} as Record<string, number>,
         interests: dbStudent.interests || [],
-        itSkills: dbStudent.itSkill || [],
-        softSkills: dbStudent.softSkill || [],
+        itSkill: dbStudent.itSkill || [],
+        softSkill: dbStudent.softSkill || [],
       };
 
       // Process skills
