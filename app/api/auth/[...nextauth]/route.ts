@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             studentId: studentId,
-            studentCode: studentId || null,
+            studentCode: (user.studentId as any)?.studentCode || null,
           };
         } catch (error) {
           console.error('Auth error:', error);
