@@ -1,8 +1,9 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import connectDB from '@/lib/mongodb/connection';
-import { User } from '@/lib/mongodb/models';
+import { User, Student } from '@/lib/mongodb/models';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,8 +26,7 @@ export const authOptions: NextAuthOptions = {
             .lean();
 
           console.log('Auth - User found:', user?.email);
-          console.log('Auth - User studentId:', user?.studentId);
-
+          
           if (!user) {
             throw new Error('Invalid email or password');
           }
@@ -40,9 +40,29 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Invalid email or password');
           }
 
-          const studentId = user.studentId?._id?.toString() || user.studentId?.toString() || null;
-          const studentCode = (user.studentId as any)?.studentCode || null;
-          console.log('Auth - Returning studentId:', studentId);
+          // Handle student data resolution
+          let studentId = null;
+          let studentCode = null;
+          
+          if (user.studentId) {
+            // Check if populated (has studentCode)
+            if ((user.studentId as any).studentCode) {
+              studentId = (user.studentId as any)._id.toString();
+              studentCode = (user.studentId as any).studentCode;
+            } else {
+              // Not populated or missing code, try to fetch manually if it's an ID
+              const idStr = user.studentId.toString();
+              if (mongoose.Types.ObjectId.isValid(idStr)) {
+                const studentDoc = await Student.findById(idStr).select('studentCode').lean();
+                if (studentDoc) {
+                  studentId = studentDoc._id.toString();
+                  studentCode = studentDoc.studentCode;
+                }
+              }
+            }
+          }
+
+          console.log('Auth - Resolved student:', { studentId, studentCode });
 
           return {
             id: user._id.toString(),

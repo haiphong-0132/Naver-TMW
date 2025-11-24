@@ -115,10 +115,11 @@ export default async function DashboardPage() {
       }
     }
 
-    // 2. Fetch Careers
+    // 2. Fetch Careers (Limit to top 6 trending)
     const careersData = await Career.find({ isActive: true })
       .select('careerId title category description overview popularity')
       .sort({ popularity: -1 })
+      .limit(6)
       .lean();
     
     hotCareers = careersData.map((c: any) => ({
@@ -138,12 +139,21 @@ export default async function DashboardPage() {
     // 3. Fetch Personalized Roadmap
     if (dbStudent) {
       try {
-        const roadmap = await PersonalizedRoadmap.findOne({ 
-          studentId: dbStudent._id,
-          isActive: true 
-        })
-        .sort({ generatedAt: -1 })
-        .lean();
+        const roadmapData = await PersonalizedRoadmap.aggregate([
+          { $match: { studentId: dbStudent._id, isActive: true } },
+          { $sort: { generatedAt: -1 } },
+          { $limit: 1 },
+          { 
+            $project: { 
+              careerName: 1, 
+              description: 1, 
+              generatedAt: 1, 
+              stagesCount: { $size: { $ifNull: ["$stages", []] } } 
+            } 
+          }
+        ]);
+
+        const roadmap = roadmapData[0];
 
         if (roadmap) {
           currentRoadmap = {
@@ -151,7 +161,7 @@ export default async function DashboardPage() {
             careerName: roadmap.careerName,
             description: roadmap.description,
             generatedAt: roadmap.generatedAt,
-            stagesCount: roadmap.stages?.length || 0,
+            stagesCount: roadmap.stagesCount || 0,
           };
         }
       } catch (err) {
