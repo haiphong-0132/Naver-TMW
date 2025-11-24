@@ -51,135 +51,114 @@ export default function ResultsPage() {
   };
 
   if (!profileData) {
-    return null; 
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="bg-card rounded-3xl shadow-sm border border-border p-8 mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
             Kết Quả Phân Tích Nghề Nghiệp
           </h1>
-          <p className="text-gray-600">
-            Xin chào <span className="font-semibold">{profileData.name}</span>! 
+          <p className="text-muted-foreground">
+            Xin chào <span className="font-bold text-primary">{profileData.name}</span>!
             Đây là các nghề nghiệp phù hợp nhất với bạn.
           </p>
         </div>
 
         {/* Predictions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {predictions.slice(0, 3).map((prediction, idx) => (
             <div
               key={prediction.career}
-              className={`bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-shadow cursor-pointer border-2 ${
-                idx === 0 ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-transparent'
-              }`}
+              className={`bg-card rounded-3xl shadow-sm p-6 hover:shadow-lg transition-all cursor-pointer border relative overflow-hidden group ${idx === 0 ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-primary/50'
+                }`}
               onClick={() => handleSelectCareer(prediction.career)}
             >
               {idx === 0 && (
-                <div className="text-yellow-500 text-sm font-semibold mb-2">
+                <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
                   PHÙ HỢP NHẤT
                 </div>
               )}
-              
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+
+              <h3 className="text-xl font-bold text-foreground mb-4 mt-2 group-hover:text-primary transition-colors">
                 {prediction.career}
               </h3>
 
               {/* Match Score */}
-              <div className="mb-4">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Độ phù hợp</span>
-                  <span className="font-semibold text-indigo-600">
+              <div className="mb-6">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted-foreground font-medium">Độ phù hợp</span>
+                  <span className="font-bold text-primary">
                     {(prediction.matchScore * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                   <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all"
+                    className="bg-gradient-to-r from-primary to-secondary h-2.5 rounded-full transition-all duration-1000 ease-out"
                     style={{ width: `${prediction.matchScore * 100}%` }}
                   />
                 </div>
               </div>
 
               {/* Reasons */}
-              <div className="mb-3">
-                <p className="text-sm font-semibold text-green-700 mb-1">Lý do phù hợp:</p>
-                <ul className="text-xs text-gray-700 space-y-1">
-                  {prediction.reasons.slice(0, 2).map((reason, i) => (
-                    <li key={i}>• {reason}</li>
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Tại sao phù hợp?</h4>
+                <ul className="space-y-2">
+                  {prediction.reasons.slice(0, 3).map((reason, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="line-clamp-2">{reason}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Challenges */}
-              {prediction.challenges.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-orange-700 mb-1">Lưu ý:</p>
-                  <ul className="text-xs text-gray-700 space-y-1">
-                    {prediction.challenges.slice(0, 1).map((challenge, i) => (
-                      <li key={i}>• {challenge}</li>
-                    ))}
-                  </ul>
+              <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
+                <span className="text-xs font-medium text-muted-foreground">Xem lộ trình chi tiết</span>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
                 </div>
-              )}
-
-              <button className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold">
-                Xem Roadmap Chi Tiết →
-              </button>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* AI Advice from ClovaX */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-xl"></span>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Tư Vấn Từ AI Advisor
-              </h2>
-              <p className="text-sm text-gray-500">Powered by Naver ClovaX</p>
-            </div>
+        {/* AI Advice */}
+        <div className="bg-card rounded-3xl shadow-sm border border-border p-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-full blur-3xl opacity-50 -mr-16 -mt-16"></div>
+          
+          <div className="relative">
+            <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </span>
+              Lời Khuyên Từ AI
+            </h2>
+            
+            {isLoading ? (
+              <div className="flex items-center gap-3 text-muted-foreground animate-pulse">
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                Đang tạo lời khuyên chi tiết...
+              </div>
+            ) : error ? (
+              <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100">
+                {error}
+              </div>
+            ) : (
+              <div className="prose prose-lg max-w-none text-muted-foreground">
+                <div className="whitespace-pre-wrap leading-relaxed bg-muted/30 p-6 rounded-2xl border border-border">
+                  {aiAdvice}
+                </div>
+              </div>
+            )}
           </div>
-
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-              <span className="ml-4 text-gray-600">Đang phân tích với ClovaX AI...</span>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700">{error}</p>
-              <p className="text-sm text-red-600 mt-2">
-                Bạn vẫn có thể xem dự đoán và roadmap bên trên.
-              </p>
-            </div>
-          ) : (
-            <div className="prose max-w-none whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {aiAdvice}
-            </div>
-          )}
-        </div>
-
-        {/* Navigation */}
-        <div className="mt-6 flex gap-4">
-          <button
-            onClick={() => router.push('/career-advisor')}
-            className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-          >
-            ← Quay lại
-          </button>
-          <button
-            onClick={() => handleSelectCareer(predictions[0].career)}
-            className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-          >
-            Xem Roadmap cho {predictions[0].career} →
-          </button>
         </div>
       </div>
     </div>

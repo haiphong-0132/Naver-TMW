@@ -14,8 +14,6 @@ import 'reactflow/dist/style.css';
 import {
   generateRoadmapGraph,
   type RoadmapStage,
-  type RoadmapArea,
-  type RoadmapItem,
 } from '@/lib/roadmapGraph';
 
 export type DiagramDetailSelection =
@@ -189,6 +187,18 @@ function TopicNode({ data }: NodeProps<TopicNodeData>) {
                 "{data.personalization.reason}"
             </p>
         )}
+        {/* {data.skillTags && data.skillTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            {data.skillTags.slice(0, 3).map(tag => (
+              <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-muted/50 border border-border rounded text-muted-foreground">
+                {tag}
+              </span>
+            ))}
+            {data.skillTags.length > 3 && (
+              <span className="text-[10px] px-1.5 py-0.5 text-muted-foreground">+{data.skillTags.length - 3}</span>
+            )}
+          </div>
+        )} */}
       </div>
     </div>
   );
@@ -216,69 +226,17 @@ const nodeTypes = {
   terminal: TerminalNode,
 };
 
-interface RoadmapFlowProps {
-  roadmapData: any;
+interface CareerRoadmapDiagramProps {
+  roadmapData: RoadmapStage[];
   onSelectDetail?: (detail: DiagramDetailSelection | null) => void;
   selectedItemId?: string | null;
 }
 
-// Helper to transform Personalized Roadmap to RoadmapData
-function transformPersonalizedRoadmap(roadmapDoc: any): RoadmapStage[] {
-  if (!roadmapDoc || !roadmapDoc.stages) return [];
-
-  return roadmapDoc.stages.map((stage: any, stageIndex: number) => {
-    const areas: RoadmapArea[] = [];
-
-    if (stage.areas) {
-      stage.areas.forEach((area: any, areaIndex: number) => {
-        const items: RoadmapItem[] = [];
-
-        if (area.items) {
-          area.items.forEach((item: any, itemIndex: number) => {
-            items.push({
-              itemId: item.id || `item-${stageIndex}-${areaIndex}-${itemIndex}`,
-              type: (item.itemType as any) || 'skill',
-              category: (item.itemType as any) || 'skill',
-              title: item.name,
-              subtitle: item.personalization?.status ? item.personalization.status.replace('_', ' ') : 'Recommended',
-              description: item.description,
-              skillTags: item.skillTags,
-              prerequisites: item.prerequisites,
-              requiredSkills: item.requiredSkills,
-              estimatedHours: item.estimatedHours,
-              check: item.check,
-              personalization: {
-                ...item.personalization,
-                priority: item.personalization?.priority?.toString()
-              }
-            });
-          });
-        }
-
-        areas.push({
-          areaId: area.id || `area-${stageIndex}-${areaIndex}`,
-          title: area.name,
-          description: area.description,
-          items
-        });
-      });
-    }
-
-    return {
-      stageId: stage.id || `stage-${stageIndex}`,
-      title: stage.name,
-      description: stage.description,
-      index: stage.orderIndex || stageIndex + 1,
-      areas
-    };
-  });
-}
-
-export default function RoadmapFlow({
+export default function CareerRoadmapDiagram({
   roadmapData,
   onSelectDetail,
   selectedItemId,
-}: RoadmapFlowProps) {
+}: CareerRoadmapDiagramProps) {
   const [isMounted, setIsMounted] = useState(false);
   
   // Track expanded states
@@ -286,21 +244,14 @@ export default function RoadmapFlow({
   const [expandedAreaIds, setExpandedAreaIds] = useState<string[]>([]);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
-  // Transform data if needed
-  const transformedData = useMemo(() => {
-    if (Array.isArray(roadmapData)) return roadmapData as RoadmapStage[];
-    if (roadmapData?.stages) return transformPersonalizedRoadmap(roadmapData);
-    return [];
-  }, [roadmapData]);
-
   // Sync activeItemId with selectedItemId prop and ensure visibility
   useEffect(() => {
     if (selectedItemId !== undefined) {
       setActiveItemId(selectedItemId);
 
       if (selectedItemId) {
-        // Find the item in transformedData to get its stageId and areaId
-        for (const stage of transformedData) {
+        // Find the item in roadmapData to get its stageId and areaId
+        for (const stage of roadmapData) {
           for (const area of stage.areas) {
             const item = area.items.find(i => i.itemId === selectedItemId);
             if (item) {
@@ -318,23 +269,23 @@ export default function RoadmapFlow({
         }
       }
     }
-  }, [selectedItemId, transformedData]);
+  }, [selectedItemId, roadmapData]);
 
   // Initialize expansion
   useEffect(() => {
-    if (transformedData.length > 0) {
+    if (roadmapData.length > 0) {
       // Expand first stage by default
-      setExpandedStageIds([transformedData[0].stageId]);
+      setExpandedStageIds([roadmapData[0].stageId]);
       // Expand first area of first stage by default
-      if (transformedData[0].areas.length > 0) {
-        setExpandedAreaIds([transformedData[0].areas[0].areaId]);
+      if (roadmapData[0].areas.length > 0) {
+        setExpandedAreaIds([roadmapData[0].areas[0].areaId]);
       }
     }
-  }, [transformedData]);
+  }, [roadmapData]);
 
   const graph = useMemo(
-    () => generateRoadmapGraph(transformedData, expandedStageIds, expandedAreaIds),
-    [transformedData, expandedStageIds, expandedAreaIds]
+    () => generateRoadmapGraph(roadmapData, expandedStageIds, expandedAreaIds),
+    [roadmapData, expandedStageIds, expandedAreaIds]
   );
 
   useEffect(() => setIsMounted(true), []);

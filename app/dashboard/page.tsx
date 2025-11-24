@@ -12,10 +12,7 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const { studentId } = session.user as any;
-
-  console.log('Dashboard - Session user:', session.user);
-  console.log('Dashboard - Student ID:', studentId);
+  const { studentId } = session.user;
 
   if (!studentId) {
     return (
@@ -42,20 +39,12 @@ export default async function DashboardPage() {
   let currentRoadmap: any = null;
   let currentCareerId: string | null = null;
 
-  // Get base URL for API calls (works both locally and on Vercel)
-  const baseUrl = process.env.NEXTAUTH_URL || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
   try {
     const studentRes = await fetch(
-      `${baseUrl}/api/students/${studentId}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/students/${studentId}`,
       { cache: 'no-store' }
     );
-    
-    console.log('Dashboard - Student API status:', studentRes.status);
-    
     const studentData = await studentRes.json();
-    console.log('Dashboard - Student data received:', !!studentData.student);
 
     if (studentData.student) {
       dbStudent = studentData.student;
@@ -65,7 +54,7 @@ export default async function DashboardPage() {
         studentDbId: dbStudent._id,
         name: dbStudent.fullName,
         university: dbStudent.university || 'Unknown University',
-        major: dbStudent.major || 'Unknown Major',
+        major: dbStudent.major || 'Computer Science',
         actualCareer:
           dbStudent.career?.actualCareer ||
           dbStudent.career?.targetCareerID ||
@@ -129,11 +118,11 @@ export default async function DashboardPage() {
 
     // Fetch careers
     const careersRes = await fetch(
-      `${baseUrl}/api/careers`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/careers`,
       { cache: 'no-store' }
     );
     const careersData = await careersRes.json();
-    hotCareers = careersData.careers?.slice(0, 6) || [];
+    hotCareers = careersData.careers || [];
 
     const currentCareer = careersData.careers?.find(
       (c: any) => c.title.toLowerCase() === student?.actualCareer?.toLowerCase()
@@ -147,7 +136,8 @@ export default async function DashboardPage() {
     if (dbStudent) {
       try {
         const personalizedRoadmapRes = await fetch(
-          `${baseUrl}/api/personalized-roadmap?studentId=${dbStudent._id}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/personalized-roadmap?studentId=${
+dbStudent._id}`,
           { cache: 'no-store' }
         );
 
@@ -186,7 +176,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-background selection:bg-primary/20">
       <Navbar />
       <main className="max-w-7xl mx-auto px-6 py-8">
         <StudentDashboard

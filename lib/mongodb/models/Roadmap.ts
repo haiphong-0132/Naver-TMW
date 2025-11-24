@@ -21,17 +21,40 @@ export interface IRoadmap {
       description?: string;
       orderIndex: number;
       
-      // Items within area
-      items: Array<{
-        id: string; // bde_python_java_basics
-        name: string; // "Lập trình Python hoặc Java cơ bản"
-        itemType: string; // "skill", "concept", "tool", "project"
-        description?: string;
-        skillTags?: string[]; // ["Python", "Java", "Programming Fundamentals"]
-        prerequisites?: string[]; // Array of item IDs
-        requiredSkills?: string[]; // Array of skill names
+      // Skills to learn in this phase
+      skillsToLearn: Array<{
+        skillId: mongoose.Types.ObjectId;
+        targetProficiency: number;
+        priority: 'essential' | 'recommended' | 'optional';
+        estimatedTime?: string;
+        skillTags?: string[];
+        prerequisites?: string[];
+        requiredSkills?: Array<{ tag: string; min_level: number }>;
         estimatedHours?: number;
-        orderIndex: number;
+      }>;
+      
+      // Courses for this phase
+      recommendedCourses?: Array<{
+        courseId: mongoose.Types.ObjectId;
+        isRequired: boolean;
+        order: number;
+        alternativeCourses?: mongoose.Types.ObjectId[];
+        prerequisites?: string[];
+        estimatedHours?: number;
+      }>;
+      
+      // Projects/Milestones
+      milestones?: Array<{
+        title: string;
+        description?: string;
+        skillsApplied: mongoose.Types.ObjectId[];
+        estimatedTime?: string;
+        deliverable?: string;
+        resources?: string[];
+        prerequisites?: string[];
+        requiredSkills?: Array<{ tag: string; min_level: number }>;
+        estimatedHours?: number;
+        skillTags?: string[];
       }>;
     }>;
   }>;
@@ -95,7 +118,58 @@ const RoadmapSchema = new Schema<IRoadmap>(
             // Items within area
             items: [
               {
-                id: {
+                skillId: {
+                  type: Schema.Types.ObjectId,
+                  ref: 'Skill',
+                  required: true,
+                },
+                targetProficiency: {
+                  type: Number,
+                  min: 1,
+                  max: 10,
+                  required: true,
+                },
+                priority: {
+                  type: String,
+                  enum: ['essential', 'recommended', 'optional'],
+                  default: 'recommended',
+                },
+                estimatedTime: String,
+                skillTags: [String],
+                prerequisites: [String],
+                requiredSkills: [{ tag: String, min_level: Number }],
+                estimatedHours: Number,
+              },
+            ],
+            
+            // Courses
+            recommendedCourses: [
+              {
+                courseId: {
+                  type: Schema.Types.ObjectId,
+                  ref: 'Course',
+                  required: true,
+                },
+                isRequired: {
+                  type: Boolean,
+                  default: false,
+                },
+                order: Number,
+                alternativeCourses: [
+                  {
+                    type: Schema.Types.ObjectId,
+                    ref: 'Course',
+                  },
+                ],
+                prerequisites: [String],
+                estimatedHours: Number,
+              },
+            ],
+            
+            // Milestones
+            milestones: [
+              {
+                title: {
                   type: String,
                   required: true,
                 },
@@ -109,6 +183,18 @@ const RoadmapSchema = new Schema<IRoadmap>(
                   enum: ['skill', 'concept', 'tool', 'project', 'course'],
                 },
                 description: String,
+                skillsApplied: [
+                  {
+                    type: Schema.Types.ObjectId,
+                    ref: 'Skill',
+                  },
+                ],
+                estimatedTime: String,
+                deliverable: String,
+                resources: [String],
+                prerequisites: [String],
+                requiredSkills: [{ tag: String, min_level: Number }],
+                estimatedHours: Number,
                 skillTags: [String],
                 prerequisites: [String], // Array of item IDs
                 requiredSkills: [String], // Array of skill names
