@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SearchableSkillInput from '@/components/SearchableSkillInput';
+import ReactMarkdown from 'react-markdown';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -511,8 +512,8 @@ export default function RegisterPage() {
                         <span className="mr-2">💡</span>
                         AI Advisor Insights:
                       </h3>
-                      <div className="prose prose-sm max-w-none text-[#1a1a1a] whitespace-pre-wrap leading-relaxed">
-                        {aiPreview.careerRecommendation}
+                      <div className="prose prose-sm max-w-none text-[#1a1a1a] leading-relaxed">
+                        <ReactMarkdown>{aiPreview.careerRecommendation}</ReactMarkdown>
                       </div>
                     </div>
 

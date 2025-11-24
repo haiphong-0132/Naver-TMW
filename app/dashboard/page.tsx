@@ -119,7 +119,6 @@ export default async function DashboardPage() {
     const careersData = await Career.find({ isActive: true })
       .select('careerId title category description overview popularity')
       .sort({ popularity: -1 })
-      .limit(6)
       .lean();
     
     hotCareers = careersData.map((c: any) => ({

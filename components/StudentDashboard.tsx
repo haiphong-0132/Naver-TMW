@@ -65,7 +65,7 @@ function SkillsChart({ technical = {}, general = {} }: { technical?: Record<stri
       {technicalSkills.length > 0 && (
         <div>
           <h4 className="text-sm font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
             Technical Skills
           </h4>
           <div className="flex flex-wrap gap-2">
