@@ -191,7 +191,7 @@ export default async function RoadmapPage({
   }
 
   // Try to find personalized roadmap first
-  let roadmap: RoadmapData | null = null;
+  let roadmap: RoadmapData | null = [];
   let isPersonalized = false;
 
   if (studentId) {
